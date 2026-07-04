@@ -1,8 +1,17 @@
 (function () {
   const payload = window.TASK2_DATA;
-  const summary = payload.summary;
-  const records = payload.records;
-  const latest = summary.latest;
+  const companies = payload.companies || [{ summary: payload.summary, records: payload.records }];
+  let activeIndex = 0;
+
+  const bollinger = echarts.init(document.getElementById("bollingerChart"));
+  const rsi = echarts.init(document.getElementById("rsiChart"));
+  const macd = echarts.init(document.getElementById("macdChart"));
+  const kdj = echarts.init(document.getElementById("kdjChart"));
+  const charts = [bollinger, rsi, macd, kdj];
+
+  function current() {
+    return companies[activeIndex];
+  }
 
   function fmtDate(value) {
     if (typeof value === "string" && value.includes("-")) return value;
@@ -14,11 +23,31 @@
     return Number(value).toFixed(digits);
   }
 
+  function signed(value) {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) return "--";
+    return `${Number(value) > 0 ? "+" : ""}${Number(value).toFixed(2)}%`;
+  }
+
+  function renderControls() {
+    const container = document.getElementById("task2CompanyControls");
+    container.innerHTML = companies.map((item, index) => `
+      <button class="seg ${index === activeIndex ? "active" : ""}" data-index="${index}">${item.summary.stock}</button>
+    `).join("");
+    container.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        activeIndex = Number(button.dataset.index);
+        renderAll();
+      });
+    });
+  }
+
   function renderMetrics() {
+    const { summary } = current();
+    const latest = summary.latest;
     const missingTotal = Object.values(summary.missing).reduce((sum, value) => sum + Number(value), 0);
     document.getElementById("task2MetricGrid").innerHTML = `
       <article class="metric-card">
-        <div class="metric-top"><h3>样本区间</h3><span class="badge">日线</span></div>
+        <div class="metric-top"><h3>${summary.stock}</h3><span class="badge">${summary.code}</span></div>
         <div class="metric-list">
           <div class="metric-line"><span>开始日期</span><strong>${summary.start_date}</strong></div>
           <div class="metric-line"><span>结束日期</span><strong>${summary.end_date}</strong></div>
@@ -42,9 +71,9 @@
         </div>
       </article>
       <article class="metric-card">
-        <div class="metric-top"><h3>波动观察</h3><span class="badge">Close</span></div>
+        <div class="metric-top"><h3>区间表现</h3><span class="badge">Return</span></div>
         <div class="metric-list">
-          <div class="metric-line"><span>收盘价均值</span><strong>${num(summary.description.close.mean)}</strong></div>
+          <div class="metric-line"><span>区间收益</span><strong class="${summary.return_pct >= 0 ? "positive" : "negative"}">${signed(summary.return_pct)}</strong></div>
           <div class="metric-line"><span>最低收盘价</span><strong>${num(summary.description.close.min)}</strong></div>
           <div class="metric-line"><span>最高收盘价</span><strong>${num(summary.description.close.max)}</strong></div>
         </div>
@@ -53,6 +82,7 @@
   }
 
   function renderTable() {
+    const { summary } = current();
     const rows = [
       ["open", "开盘价"],
       ["high", "最高价"],
@@ -73,21 +103,16 @@
     `;
   }
 
-  function dates() {
+  function dates(records) {
     return records.map((row) => fmtDate(row.trade_date));
   }
 
-  function resizeAll(charts) {
-    charts.forEach((chart) => chart.resize());
-  }
-
   function renderCharts() {
-    const x = dates();
-    const bollinger = echarts.init(document.getElementById("bollingerChart"));
-    const rsi = echarts.init(document.getElementById("rsiChart"));
-    const macd = echarts.init(document.getElementById("macdChart"));
-    const kdj = echarts.init(document.getElementById("kdjChart"));
-    const charts = [bollinger, rsi, macd, kdj];
+    const { summary, records } = current();
+    const latest = summary.latest;
+    const x = dates(records);
+
+    document.getElementById("bbTitle").textContent = `图1 ${summary.stock}收盘价与布林带`;
 
     bollinger.setOption({
       color: ["#006d77", "#334155", "#b7791f"],
@@ -97,12 +122,12 @@
       xAxis: { type: "category", data: x, boundaryGap: false },
       yAxis: { type: "value", name: "价格", scale: true },
       series: [
-        { name: "收盘价", type: "line", showSymbol: false, smooth: true, data: records.map((r) => r.close), lineStyle: { width: 2 } },
-        { name: "20日中轨", type: "line", showSymbol: false, smooth: true, data: records.map((r) => r.bb_mid), lineStyle: { width: 1.5 } },
-        { name: "上轨", type: "line", showSymbol: false, smooth: true, data: records.map((r) => r.bb_upper), lineStyle: { width: 1.2 } },
-        { name: "下轨", type: "line", showSymbol: false, smooth: true, data: records.map((r) => r.bb_lower), lineStyle: { width: 1.2 } }
+        { name: "收盘价", type: "line", showSymbol: false, smooth: true, data: records.map((row) => row.close), lineStyle: { width: 2 } },
+        { name: "20日中轨", type: "line", showSymbol: false, smooth: true, data: records.map((row) => row.bb_mid), lineStyle: { width: 1.5 } },
+        { name: "上轨", type: "line", showSymbol: false, smooth: true, data: records.map((row) => row.bb_upper), lineStyle: { width: 1.2 } },
+        { name: "下轨", type: "line", showSymbol: false, smooth: true, data: records.map((row) => row.bb_lower), lineStyle: { width: 1.2 } }
       ]
-    });
+    }, true);
 
     rsi.setOption({
       color: ["#2563eb", "#b91c1c", "#15803d"],
@@ -112,11 +137,11 @@
       xAxis: { type: "category", data: x, boundaryGap: false },
       yAxis: { type: "value", min: 0, max: 100 },
       series: [
-        { name: "RSI(14)", type: "line", showSymbol: false, data: records.map((r) => r.rsi14) },
+        { name: "RSI(14)", type: "line", showSymbol: false, data: records.map((row) => row.rsi14) },
         { name: "70", type: "line", showSymbol: false, data: records.map(() => 70), lineStyle: { type: "dashed" } },
         { name: "30", type: "line", showSymbol: false, data: records.map(() => 30), lineStyle: { type: "dashed" } }
       ]
-    });
+    }, true);
 
     macd.setOption({
       color: ["#1d4ed8", "#b45309"],
@@ -126,11 +151,11 @@
       xAxis: { type: "category", data: x, boundaryGap: false },
       yAxis: { type: "value", scale: true },
       series: [
-        { name: "MACD柱", type: "bar", data: records.map((r) => r.macd_hist), itemStyle: { color: (p) => p.value >= 0 ? "rgba(185,28,28,.55)" : "rgba(21,128,61,.55)" } },
-        { name: "DIF", type: "line", showSymbol: false, data: records.map((r) => r.macd) },
-        { name: "DEA", type: "line", showSymbol: false, data: records.map((r) => r.macd_signal) }
+        { name: "MACD柱", type: "bar", data: records.map((row) => row.macd_hist), itemStyle: { color: (p) => p.value >= 0 ? "rgba(185,28,28,.55)" : "rgba(21,128,61,.55)" } },
+        { name: "DIF", type: "line", showSymbol: false, data: records.map((row) => row.macd) },
+        { name: "DEA", type: "line", showSymbol: false, data: records.map((row) => row.macd_signal) }
       ]
-    });
+    }, true);
 
     kdj.setOption({
       color: ["#006d77", "#2563eb", "#b45309"],
@@ -140,27 +165,36 @@
       xAxis: { type: "category", data: x, boundaryGap: false },
       yAxis: { type: "value", scale: true },
       series: [
-        { name: "K", type: "line", showSymbol: false, data: records.map((r) => r.kdj_k) },
-        { name: "D", type: "line", showSymbol: false, data: records.map((r) => r.kdj_d) },
-        { name: "J", type: "line", showSymbol: false, data: records.map((r) => r.kdj_j) }
+        { name: "K", type: "line", showSymbol: false, data: records.map((row) => row.kdj_k) },
+        { name: "D", type: "line", showSymbol: false, data: records.map((row) => row.kdj_d) },
+        { name: "J", type: "line", showSymbol: false, data: records.map((row) => row.kdj_j) }
       ]
-    });
+    }, true);
 
-    document.getElementById("bbCaption").textContent = `最新收盘价 ${num(latest.close)}，接近布林带上轨 ${num(latest.bb_upper)}，短期反弹较强但需关注上轨附近波动。`;
-    document.getElementById("rsiCaption").textContent = `最新 RSI(14) 为 ${num(latest.rsi14)}，处于 50 以上但未超过 70，显示近期动能改善但未到典型超买阈值。`;
-    document.getElementById("macdCaption").textContent = `最新 DIF 为 ${num(latest.macd, 4)}，DEA 为 ${num(latest.macd_signal, 4)}，柱状图为正，趋势动能偏正。`;
-    document.getElementById("kdjCaption").textContent = `最新 K=${num(latest.kdj_k)}，D=${num(latest.kdj_d)}，J=${num(latest.kdj_j)}，J 值高于 80，短线偏热。`;
-
-    window.addEventListener("resize", () => resizeAll(charts));
-    if ("ResizeObserver" in window) {
-      const observer = new ResizeObserver(() => resizeAll(charts));
-      document.querySelectorAll(".chart").forEach((node) => observer.observe(node));
-    }
-    setTimeout(() => resizeAll(charts), 100);
-    setTimeout(() => resizeAll(charts), 500);
+    document.getElementById("bbCaption").textContent = `${summary.stock}最新收盘价 ${num(latest.close)}，布林带上轨 ${num(latest.bb_upper)}、中轨 ${num(latest.bb_mid)}、下轨 ${num(latest.bb_lower)}。`;
+    document.getElementById("rsiCaption").textContent = `${summary.stock}最新 RSI(14) 为 ${num(latest.rsi14)}，用于观察近期动量是否偏热或偏冷。`;
+    document.getElementById("macdCaption").textContent = `${summary.stock}最新 DIF 为 ${num(latest.macd, 4)}，DEA 为 ${num(latest.macd_signal, 4)}，MACD柱为 ${num(latest.macd_hist, 4)}。`;
+    document.getElementById("kdjCaption").textContent = `${summary.stock}最新 K=${num(latest.kdj_k)}，D=${num(latest.kdj_d)}，J=${num(latest.kdj_j)}；KDJ 是本次扩展计算指标。`;
   }
 
-  renderMetrics();
-  renderTable();
-  renderCharts();
+  function resizeAll() {
+    charts.forEach((chart) => chart.resize());
+  }
+
+  function renderAll() {
+    renderControls();
+    renderMetrics();
+    renderTable();
+    renderCharts();
+    setTimeout(resizeAll, 60);
+  }
+
+  window.addEventListener("resize", resizeAll);
+  if ("ResizeObserver" in window) {
+    const observer = new ResizeObserver(resizeAll);
+    document.querySelectorAll(".chart").forEach((node) => observer.observe(node));
+  }
+
+  renderAll();
+  setTimeout(resizeAll, 300);
 })();
