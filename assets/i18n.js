@@ -9,6 +9,7 @@
     "研究卡片": "Reports",
     "AI-quant / TASK1": "AI-quant / TASK1",
     "AI-quant / TASK2": "AI-quant / TASK2",
+    "北大光华BA工作坊——量化交易：AI大模型辅助的金融交易策略": "PKU Guanghua BA Workshop: Quant Trading Strategies Assisted by AI Models",
     "创新药量化研究作品集": "Innovative Pharma Quant Portfolio",
     "围绕创新药龙头企业，逐步搭建数据引擎、完成数据诊断、构造交易指标，并用网页看板管理每一次任务成果。": "A course portfolio focused on innovative pharma leaders: building a data engine, diagnosing data quality, constructing indicators, and managing each task with web dashboards.",
     "查看 TASK2 指标看板": "View TASK2 Indicator Dashboard",
