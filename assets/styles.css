@@ -58,9 +58,23 @@ a {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 18px;
   font-size: 14px;
   color: rgba(255, 255, 255, .84);
+}
+
+.lang-toggle {
+  min-height: 32px;
+  border: 1px solid rgba(255, 255, 255, .34);
+  border-radius: 999px;
+  padding: 5px 11px;
+  color: #fff;
+  background: rgba(255, 255, 255, .08);
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .hero-inner {
@@ -671,6 +685,7 @@ h2 {
   .nav-links {
     width: 100%;
     justify-content: space-between;
+    gap: 10px;
   }
 
   .hero-inner {
