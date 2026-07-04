@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TASK2 · 数据诊断与交易指标</title>
+  <link rel="stylesheet" href="assets/styles.css?v=4">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <script src="assets/task2_data.js"></script>
+</head>
+<body>
+  <header class="hero task2-hero">
+    <nav class="nav">
+      <div class="brand">AI-quant / TASK2</div>
+      <div class="nav-links">
+        <a href="index.html">首页</a>
+        <a href="task1.html">TASK1</a>
+        <a href="downloads/辛家辉TASK2.pdf">PDF</a>
+      </div>
+    </nav>
+    <section class="hero-inner">
+      <p class="eyebrow">Data Alchemy · Indicator Lab</p>
+      <h1>数据诊断与交易指标构造</h1>
+      <p class="hero-copy">以恒瑞医药最近一年日线行情为案例，检查缺失值、计算描述性统计量，并构造 RSI、MACD、布林带和 KDJ 指标。</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#diagnosis">查看诊断结果</a>
+        <a class="button secondary" href="downloads/辛家辉TASK2.pdf">下载提交 PDF</a>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section id="diagnosis" class="section">
+      <div class="section-head">
+        <p class="eyebrow">Diagnosis</p>
+        <h2>数据质量诊断</h2>
+        <p>数据来自 TASK1 已保存的恒瑞医药日线 CSV。诊断重点包括样本区间、缺失值、收盘价分布、成交额和涨跌幅波动。</p>
+      </div>
+      <div id="task2MetricGrid" class="metric-grid"></div>
+      <div class="table-wrap">
+        <table class="data-table" id="descTable"></table>
+      </div>
+    </section>
+
+    <section class="section visual-band">
+      <div class="section-head">
+        <p class="eyebrow">Indicators</p>
+        <h2>核心指标图谱</h2>
+        <p>指标从趋势、动量、波动率和短期相对位置四个角度描述市场状态。技术指标不是单独的买卖结论，应与基本面、交易成本和风险控制结合使用。</p>
+      </div>
+      <div class="indicator-grid">
+        <article class="indicator-card">
+          <h3>RSI</h3>
+          <p>RSI = 100 - 100 / (1 + RS)，其中 RS 为平均上涨幅度除以平均下跌幅度。常用 70 和 30 作为偏热、偏冷参考线。</p>
+        </article>
+        <article class="indicator-card">
+          <h3>MACD</h3>
+          <p>DIF = EMA(12) - EMA(26)，DEA = EMA(DIF, 9)，柱状图 = DIF - DEA，用于观察中短期趋势动能。</p>
+        </article>
+        <article class="indicator-card">
+          <h3>布林带</h3>
+          <p>中轨为 20 日均线，上下轨为中轨加减 2 倍标准差，用于观察价格区间和波动率扩张。</p>
+        </article>
+        <article class="indicator-card">
+          <h3>KDJ</h3>
+          <p>KDJ 基于 RSV 平滑得到 K、D、J，适合观察短期价格在近端高低区间中的相对位置。</p>
+        </article>
+      </div>
+      <div class="chart-stack task2-stack">
+        <div class="chart-panel">
+          <div class="panel-title">图1 恒瑞医药收盘价与布林带</div>
+          <div id="bollingerChart" class="chart"></div>
+          <p class="caption" id="bbCaption"></p>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">图2 RSI(14)</div>
+          <div id="rsiChart" class="chart compact"></div>
+          <p class="caption" id="rsiCaption"></p>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">图3 MACD</div>
+          <div id="macdChart" class="chart compact"></div>
+          <p class="caption" id="macdCaption"></p>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">图4 扩展指标 KDJ</div>
+          <div id="kdjChart" class="chart compact"></div>
+          <p class="caption" id="kdjCaption"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <p class="eyebrow">Artifacts</p>
+        <h2>提交文件与数据</h2>
+        <p>PDF 文档、指标 CSV 与 Python 脚本均已保留，便于后续 TASK3 继续复用。</p>
+      </div>
+      <div class="portal-grid small-grid">
+        <article class="portal-card">
+          <h3>辛家辉TASK2.pdf</h3>
+          <p>符合提交要求的 PDF 文档，包含数据诊断、指标计算方法、图表和解读。</p>
+          <a class="csv-link" href="downloads/辛家辉TASK2.pdf">下载 PDF</a>
+        </article>
+        <article class="portal-card">
+          <h3>指标数据</h3>
+          <p>页面图表由 `assets/task2_data.js` 提供，源数据来自 TASK1 保存的恒瑞医药日线 CSV。</p>
+          <a class="csv-link" href="assets/task2_data.js">查看前端数据</a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>作者：辛家辉</span>
+    <span>样本：恒瑞医药 600276.SH</span>
+    <span>指标：RSI / MACD / Bollinger Bands / KDJ</span>
+    <strong>本页面仅供课程研究参考，不构成投资建议。</strong>
+  </footer>
+
+  <script src="assets/task2_app.js?v=4"></script>
+</body>
+</html>

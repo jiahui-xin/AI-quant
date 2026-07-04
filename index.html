@@ -3,130 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>创新药龙头企业量化观察</title>
-  <link rel="stylesheet" href="assets/styles.css?v=3">
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-  <script src="assets/data.js"></script>
+  <title>AI-quant · 创新药量化学习档案</title>
+  <link rel="stylesheet" href="assets/styles.css?v=4">
 </head>
 <body>
-  <header class="hero">
+  <header class="hero portal-hero">
     <nav class="nav">
-      <div class="brand">创新药龙头企业量化观察</div>
+      <div class="brand">AI-quant</div>
       <div class="nav-links">
-        <a href="#dashboard">智能看板</a>
-        <a href="#overview">龙头矩阵</a>
-        <a href="#reports">研究卡片</a>
+        <a href="task1.html">TASK1</a>
+        <a href="task2.html">TASK2</a>
+        <a href="downloads/辛家辉TASK2.pdf">PDF</a>
       </div>
     </nav>
     <section class="hero-inner">
-      <p class="eyebrow">Tushare Pro + ECharts · A股创新药代表公司</p>
-      <h1>用数据引擎观察创新药龙头企业</h1>
-      <p class="hero-copy">聚焦恒瑞医药、百济神州、君实生物、复星医药，整合最近一年日线交易数据、收益波动、回撤和成交额变化，形成可复用的创新药公司量化观察页。</p>
+      <p class="eyebrow">Innovation Pharma · Quant Workshop</p>
+      <h1>创新药量化研究作品集</h1>
+      <p class="hero-copy">围绕创新药龙头企业，逐步搭建数据引擎、完成数据诊断、构造交易指标，并用网页看板管理每一次任务成果。</p>
       <div class="hero-actions">
-        <a class="button primary" href="#dashboard">进入看板</a>
-        <a class="button secondary" href="assets/data.json">下载数据 JSON</a>
+        <a class="button primary" href="task2.html">查看 TASK2 指标看板</a>
+        <a class="button secondary" href="task1.html">回看 TASK1 数据引擎</a>
       </div>
     </section>
   </header>
 
   <main>
-    <section id="dashboard" class="section dashboard-section">
+    <section class="section">
       <div class="section-head">
-        <p class="eyebrow">Smart Dashboard</p>
-        <h2>创新药龙头智能看板</h2>
-        <p>参考单股 K 线看板的展示方式，将行情、技术指标、资金活跃度、公司定位和风险提示集中到一个可切换的研究面板。</p>
+        <p class="eyebrow">Course Pages</p>
+        <h2>页面管理</h2>
+        <p>同一个 GitHub 仓库可以管理多个页面。当前首页负责导航，具体任务分别放在独立 HTML 页面中，数据、脚本和 PDF 统一放在 assets 与 downloads 目录下。</p>
       </div>
-      <div class="control-row sticky-control" role="group" aria-label="选择公司">
-        <button class="seg active" data-code="600276.SH">恒瑞医药</button>
-        <button class="seg" data-code="688235.SH">百济神州</button>
-        <button class="seg" data-code="688180.SH">君实生物</button>
-        <button class="seg" data-code="600196.SH">复星医药</button>
-      </div>
-      <div class="dashboard-grid">
-        <aside class="quote-panel">
-          <div class="quote-head">
-            <div>
-              <p class="eyebrow">Selected</p>
-              <h3 id="quoteName">恒瑞医药</h3>
-              <span id="quoteCode">600276.SH</span>
-            </div>
-            <span class="status-dot">A股创新药</span>
+      <div class="portal-grid">
+        <article class="portal-card">
+          <span class="task-mark">TASK1</span>
+          <h3>量化交易初体验：从零搭建数据引擎</h3>
+          <p>使用 Tushare 获取创新药代表公司的日线行情，构建 CSV 数据文件，并展示公司矩阵、K 线看板和行业对照图谱。</p>
+          <div class="tags">
+            <span class="tag">Tushare</span>
+            <span class="tag">数据引擎</span>
+            <span class="tag">创新药龙头</span>
           </div>
-          <div class="price-row">
-            <strong id="quotePrice">--</strong>
-            <span id="quoteReturn" class="positive">--</span>
+          <a class="csv-link" href="task1.html">进入 TASK1</a>
+        </article>
+
+        <article class="portal-card featured">
+          <span class="task-mark">TASK2</span>
+          <h3>数据炼金术：数据诊断与构造交易指标</h3>
+          <p>对恒瑞医药已保存股价数据进行缺失值诊断、描述性统计，计算 RSI、MACD、布林带和 KDJ，并形成交互图表。</p>
+          <div class="tags">
+            <span class="tag">RSI</span>
+            <span class="tag">MACD</span>
+            <span class="tag">Bollinger Bands</span>
+            <span class="tag">KDJ</span>
           </div>
-          <div class="quote-stats" id="quoteStats"></div>
-          <div class="thesis-box">
-            <h4>研究主线</h4>
-            <p id="quoteTheme">--</p>
-          </div>
-        </aside>
-
-        <div class="chart-panel kline-panel">
-          <div class="panel-title" id="klineTitle">图1 恒瑞医药 K线与均线</div>
-          <div id="klineChart" class="chart tall"></div>
-          <p class="caption" id="klineCaption">K线用于观察开盘、收盘、高低点，MA5/MA20/MA60 用于判断短中期趋势。</p>
-        </div>
-
-        <div class="insight-panel">
-          <h3>技术面快照</h3>
-          <div id="techGrid" class="tech-grid"></div>
-        </div>
-
-        <div class="insight-panel">
-          <h3>创新药观察</h3>
-          <div id="analysisList" class="analysis-list"></div>
-        </div>
+          <a class="csv-link" href="task2.html">进入 TASK2</a>
+          <a class="csv-link secondary-link" href="downloads/辛家辉TASK2.pdf">下载 PDF</a>
+        </article>
       </div>
-    </section>
-
-    <section id="overview" class="section">
-      <div class="section-head">
-        <p class="eyebrow">Overview</p>
-        <h2>龙头矩阵</h2>
-        <p>页面数据由 Tushare Pro 日线接口生成，时间范围为最近一年交易日。指标仅用于课堂研究和网页展示，不构成投资建议。</p>
-      </div>
-      <div id="metricGrid" class="metric-grid"></div>
-    </section>
-
-    <section id="charts" class="section visual-band">
-      <div class="section-head">
-        <p class="eyebrow">Charts</p>
-        <h2>行业对照图谱</h2>
-        <p>上方图表比较四家公司收盘价归一化走势，下方图表展示单家公司每日收盘价与成交额变化。</p>
-      </div>
-      <div class="chart-stack">
-        <div class="chart-panel">
-          <div class="panel-title">图2 创新药代表公司收盘价归一化走势</div>
-          <div id="compareChart" class="chart"></div>
-          <p class="caption">以各公司样本期首个收盘价为 100，观察不同公司在同一时间窗口内的相对表现。</p>
-        </div>
-        <div class="chart-panel">
-          <div class="panel-title" id="detailTitle">图3 恒瑞医药每日收盘价与成交额</div>
-          <div id="detailChart" class="chart"></div>
-          <p class="caption" id="detailCaption">收盘价用于观察价格趋势，成交额用于辅助判断交易活跃度和资金关注变化。</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="reports" class="section">
-      <div class="section-head">
-        <p class="eyebrow">Reports</p>
-        <h2>研究卡片</h2>
-        <p>参考报告门户的卡片式结构，每张卡片对应一家创新药公司，可下载该公司的 CSV 数据用于后续任务。</p>
-      </div>
-      <div id="reportGrid" class="report-grid"></div>
     </section>
   </main>
 
   <footer class="footer">
-    <span>数据来源：Tushare Pro API</span>
-    <span>可视化引擎：ECharts</span>
-    <span>生成时间：2026年7月4日</span>
+    <span>作者：辛家辉</span>
+    <span>主题：创新药量化观察</span>
+    <span>部署：GitHub Pages</span>
     <strong>本页面仅供课程研究参考，不构成投资建议。</strong>
   </footer>
-
-  <script src="assets/app.js?v=3"></script>
 </body>
 </html>

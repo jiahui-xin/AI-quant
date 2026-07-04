@@ -523,6 +523,128 @@ h2 {
   color: var(--red);
 }
 
+.portal-hero,
+.task2-hero {
+  min-height: 76vh;
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.small-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.portal-card,
+.indicator-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(15, 47, 58, .07);
+}
+
+.portal-card {
+  min-height: 300px;
+  padding: 24px;
+}
+
+.portal-card.featured {
+  border-color: rgba(0, 109, 119, .42);
+  background: linear-gradient(180deg, #ffffff 0%, #f3fbfb 100%);
+}
+
+.task-mark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border-radius: 999px;
+  padding: 5px 10px;
+  color: #fff;
+  background: var(--teal);
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.portal-card h3 {
+  margin-top: 16px;
+  font-size: 24px;
+  line-height: 1.32;
+}
+
+.portal-card p,
+.indicator-card p {
+  color: #334155;
+  line-height: 1.72;
+}
+
+.secondary-link {
+  margin-left: 8px;
+  background: #f8f2e7;
+  color: var(--gold);
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(15, 47, 58, .05);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+  font-family: Arial, "Songti SC", SimSun, serif;
+  font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 14px;
+  text-align: right;
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+  text-align: left;
+}
+
+.data-table th {
+  color: var(--deep);
+  background: #e9f4f7;
+}
+
+.indicator-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.indicator-card {
+  padding: 18px;
+}
+
+.indicator-card h3 {
+  font-size: 22px;
+  color: var(--teal);
+}
+
+.task2-stack {
+  margin-top: 18px;
+}
+
+.chart.compact {
+  height: 360px;
+}
+
 @media (max-width: 1080px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
@@ -533,7 +655,8 @@ h2 {
   }
 
   .metric-grid,
-  .report-grid {
+  .report-grid,
+  .indicator-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -566,13 +689,20 @@ h2 {
   .metric-grid,
   .report-grid,
   .tech-grid,
-  .analysis-list {
+  .analysis-list,
+  .portal-grid,
+  .small-grid,
+  .indicator-grid {
     grid-template-columns: 1fr;
   }
 
   .chart,
   .chart.tall {
     height: 360px;
+  }
+
+  .chart.compact {
+    height: 320px;
   }
 
   .price-row strong {
