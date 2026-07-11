@@ -48,7 +48,7 @@
       <div class="section-head">
         <p class="eyebrow">Interactive Backtest</p>
         <h2>策略实验室</h2>
-        <p>选择股票和均线周期即可重新计算。信号在当日收盘后确认，持仓从下一交易日生效，并扣除单边 0.10% 交易成本。</p>
+        <p>选择股票和均线周期即可重新计算。第 t 日只使用第 t-1 日及更早的信息决定交易，并按第 t 日开盘价执行；单边手续费为万分之三，滑点与价格冲击为万分之一。</p>
       </div>
       <div class="strategy-toolbar">
         <div>
@@ -79,7 +79,7 @@
       <div class="section-head">
         <p class="eyebrow">Parameter Comparison</p>
         <h2>股票与周期比较</h2>
-        <p>比较四只股票和四组均线周期。结果用于观察参数敏感性，不把样本内最高收益直接当作未来最优参数。</p>
+        <p>比较四只股票和五组均线周期，其中包括华尔街常用的 50/200 日组合。结果用于观察参数敏感性，不把样本内最高收益直接当作未来最优参数。</p>
       </div>
       <div class="chart-panel comparison-panel">
         <div class="panel-title">图3 不同股票与均线周期的累计回报</div>
@@ -118,7 +118,7 @@
   <footer class="footer">
     <span>作者：辛家辉</span>
     <span>策略：双均线趋势跟随</span>
-    <span>回测：四只股票 / 四组周期</span>
+    <span>回测：四只股票 / 五组周期</span>
     <strong>本页面仅供课程研究参考，不构成投资建议。</strong>
   </footer>
 

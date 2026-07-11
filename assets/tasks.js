@@ -21,7 +21,7 @@ window.AIQ_TASKS = [
     id: "TASK3",
     title: "策略首秀：用均线交叉反映市场趋势变化",
     description: "实现双均线金叉与死叉信号，完成模拟交易和回测，并比较不同股票、不同均线周期的收益与风险。",
-    tags: ["MA5/15", "交易信号", "回测", "Sharpe", "MDD"],
+    tags: ["MA5/15", "MA50/200", "交易信号", "回测", "Sharpe", "MDD"],
     page: "task3.html",
     pdf: "TASK3/辛家辉TASK3.pdf",
     status: "completed"

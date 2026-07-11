@@ -18,7 +18,7 @@
 | --- | --- | --- |
 | TASK1 | 从零搭建量化交易数据引擎 | Tushare 数据抓取、日线 CSV、行情与公司对比看板 |
 | TASK2 | 数据诊断与交易指标构造 | 缺失值诊断、RSI、MACD、布林带、KDJ |
-| TASK3 | 双均线交易策略与回测 | 金叉与死叉、模拟交易、MDD、夏普比率、参数比较 |
+| TASK3 | 双均线交易策略与回测 | 金叉与死叉、MA50/200、滞后信号、交易成本、MDD、夏普比率 |
 
 ### 仓库结构
 
@@ -58,7 +58,7 @@ This repository contains quantitative-trading coursework for the PKU Guanghua Bu
 | --- | --- | --- |
 | TASK1 | Building a quantitative market-data engine | Tushare data collection, daily CSV files, price and company-comparison dashboards |
 | TASK2 | Data diagnostics and trading indicators | Missing-value diagnostics, RSI, MACD, Bollinger Bands, and KDJ |
-| TASK3 | Moving-average strategy and backtesting | Golden/death crosses, simulated trading, MDD, Sharpe ratio, and parameter comparison |
+| TASK3 | Moving-average strategy and backtesting | Golden/death crosses, MA50/200, lagged signals, trading costs, MDD, and Sharpe ratio |
 
 ### Repository Structure
 

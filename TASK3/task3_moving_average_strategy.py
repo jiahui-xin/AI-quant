@@ -34,9 +34,11 @@ COMPANIES = {
     "688180_SH": "君实生物",
     "600196_SH": "复星医药",
 }
-PERIODS = [(3, 10), (5, 15), (10, 30), (20, 60)]
+PERIODS = [(3, 10), (5, 15), (10, 30), (20, 60), (50, 200)]
 TRADING_DAYS = 252
-FEE = 0.001
+COMMISSION = 0.0003  # 单边手续费：万分之三
+SLIPPAGE_IMPACT = 0.0001  # 单边滑点与价格冲击：万分之一
+TOTAL_COST = COMMISSION + SLIPPAGE_IMPACT
 
 
 def load_price(code: str) -> pd.DataFrame:
@@ -45,17 +47,22 @@ def load_price(code: str) -> pd.DataFrame:
     return df.sort_values("trade_date").reset_index(drop=True)
 
 
-def backtest(raw: pd.DataFrame, short: int, long: int, fee: float = FEE):
+def backtest(raw: pd.DataFrame, short: int, long: int, cost: float = TOTAL_COST):
     df = raw.copy()
     df["ma_short"] = df["close"].rolling(short).mean()
     df["ma_long"] = df["close"].rolling(long).mean()
     df["signal"] = (df["ma_short"] > df["ma_long"]).astype(int)
     df.loc[df["ma_long"].isna(), "signal"] = 0
-    df["trade"] = df["signal"].diff().fillna(df["signal"])
-    df["position"] = df["signal"].shift(1).fillna(0)  # 次日生效，避免前视偏差
+    # 第 t 日目标持仓只能由第 t-1 日及更早的收盘数据决定。
+    df["position"] = df["signal"].shift(1).fillna(0)
+    df["trade"] = df["position"].diff().fillna(df["position"])
     df["market_return"] = df["close"].pct_change().fillna(0)
     turnover = df["position"].diff().abs().fillna(df["position"].abs())
-    df["strategy_return"] = df["position"] * df["market_return"] - fee * turnover
+    previous_position = df["position"].shift(1).fillna(0)
+    overnight_return = (df["open"] / df["close"].shift(1) - 1).fillna(0)
+    intraday_return = df["close"] / df["open"] - 1
+    gross_return = (1 + previous_position * overnight_return) * (1 + df["position"] * intraday_return) - 1
+    df["strategy_return"] = gross_return - cost * turnover
     df["strategy_nav"] = (1 + df["strategy_return"]).cumprod()
     df["buy_hold_nav"] = (1 + df["market_return"]).cumprod()
     df["drawdown"] = df["strategy_nav"] / df["strategy_nav"].cummax() - 1
@@ -87,8 +94,8 @@ def plot_signals(df: pd.DataFrame, company: str, out: Path):
     ax.plot(df.trade_date, df.ma_short, color="#ef6c00", lw=1.2, label="MA5")
     ax.plot(df.trade_date, df.ma_long, color="#1565c0", lw=1.2, label="MA15")
     buys, sells = df[df.trade == 1], df[df.trade == -1]
-    ax.scatter(buys.trade_date, buys.close, marker="^", s=54, color="#2e7d32", label="买入（金叉）", zorder=4)
-    ax.scatter(sells.trade_date, sells.close, marker="v", s=54, color="#c62828", label="卖出（死叉）", zorder=4)
+    ax.scatter(buys.trade_date, buys.open, marker="^", s=54, color="#2e7d32", label="开盘买入（金叉）", zorder=4)
+    ax.scatter(sells.trade_date, sells.open, marker="v", s=54, color="#c62828", label="开盘卖出（死叉）", zorder=4)
     ax.set_title(f"{company}：收盘价、双均线与交易信号")
     ax.set_ylabel("价格（元）")
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
@@ -135,7 +142,7 @@ def plot_heatmap(results: pd.DataFrame, out: Path):
 
 
 def pct(x): return f"{x:.2%}"
-def num(x): return f"{x:.2f}"
+def num(x): return "--" if pd.isna(x) else f"{x:.2f}"
 
 
 def build_report(primary: pd.DataFrame, primary_metrics: dict, comparisons: pd.DataFrame):
@@ -187,7 +194,7 @@ def build_report(primary: pd.DataFrame, primary_metrics: dict, comparisons: pd.D
     story = [Spacer(1, 8*mm), Paragraph("TASK3 策略首秀：用均线交叉反映市场趋势变化", title),
              Paragraph("量化交易课程个人作业报告", center), Spacer(1, 8*mm), info_table,
              Spacer(1, 7*mm), Paragraph("一、作业任务", h1), task_table,
-             Paragraph("本次作业使用 TASK1 已保存的四只创新药股票日线数据。恒瑞医药（600276.SH）作为主要展示对象，短期均线和长期均线设置为 5 日与 15 日；另外使用其他股票和周期组合进行比较。回测采用“当日收盘确认信号、下一交易日持仓生效”的方式，并计入单边 0.10% 交易成本。", body),
+             Paragraph("本次作业使用 TASK1 已保存的四只创新药股票日线数据。恒瑞医药（600276.SH）作为主要展示对象，短期均线和长期均线设置为 5 日与 15 日；另外比较 3/10、10/30、20/60 和华尔街常用的 50/200 日组合。第 t 日只能使用第 t-1 日及更早的信息决定是否交易，交易按第 t 日开盘价执行。单边手续费为万分之三，滑点与价格冲击为万分之一，合计单边成本为万分之四。", body),
              Paragraph("二、双均线策略与评价指标", h1),
              Paragraph("1. 双均线策略", h2),
              Paragraph("双均线策略同时计算短期均线和长期均线。短期均线对新价格反应较快，长期均线更平滑，用于刻画中期趋势。当短期均线由下向上穿越长期均线时形成“金叉”，通常解释为近期价格动能转强，策略由空仓转为持有；当短期均线由上向下穿越长期均线时形成“死叉”，通常解释为趋势转弱，策略卖出并回到空仓。本作业只做多、不做空。", body),
@@ -202,13 +209,13 @@ def build_report(primary: pd.DataFrame, primary_metrics: dict, comparisons: pd.D
              Paragraph("2. 计算均线和交易信号", h2),
              Paragraph("主案例滚动计算 MA5 与 MA15。MA5 高于 MA15 时持有股票，MA5 低于 MA15 时空仓；信号由 0 变为 1 时标记买入，由 1 变为 0 时标记卖出。", body),
              Paragraph("3. 模拟交易并计算指标", h2),
-             Paragraph("为避免使用未来信息，程序将当日信号滞后一个交易日形成实际持仓。策略日收益等于持仓乘以股票日收益，再减去换仓成本；由日收益累计得到策略净值，并据此计算累计回报、最大回撤和夏普比率。", body),
+             Paragraph("为避免使用未来信息，程序先用第 t-1 日收盘及此前数据计算均线状态，再形成第 t 日目标持仓，并在第 t 日开盘执行交易。持有到开盘的旧仓位承担隔夜收益，开盘调整后的新仓位承担日内收益，发生买卖时扣除万分之三手续费和万分之一滑点及冲击成本。由每日净收益累计得到策略净值，并计算累计回报、最大回撤和夏普比率。", body),
              Paragraph("关键实现如下（完整代码与结果 CSV 随报告保存在 TASK3 目录）：", body),
-             Table([[Paragraph("df['ma_short'] = df['close'].rolling(5).mean()<br/>df['ma_long'] = df['close'].rolling(15).mean()<br/>df['signal'] = (df['ma_short'] &gt; df['ma_long']).astype(int)<br/>df['position'] = df['signal'].shift(1).fillna(0)<br/>turnover = df['position'].diff().abs().fillna(0)<br/>df['strategy_return'] = df['position'] * df['close'].pct_change().fillna(0) - 0.001 * turnover<br/>df['strategy_nav'] = (1 + df['strategy_return']).cumprod()", small)]], colWidths=[doc.width], style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#F3F6F8")),("BOX",(0,0),(-1,-1),.5,colors.HexColor("#AAB7C4")),("LEFTPADDING",(0,0),(-1,-1),8),("RIGHTPADDING",(0,0),(-1,-1),8),("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
+             Table([[Paragraph("df['ma_short'] = df['close'].rolling(5).mean()<br/>df['ma_long'] = df['close'].rolling(15).mean()<br/>df['signal'] = (df['ma_short'] &gt; df['ma_long']).astype(int)<br/>df['position'] = df['signal'].shift(1).fillna(0)  # t日使用t-1日信号<br/>df['trade'] = df['position'].diff().fillna(df['position'])<br/>gross = (1 + previous_position * overnight_return) * (1 + df['position'] * intraday_return) - 1<br/>df['strategy_return'] = gross - (0.0003 + 0.0001) * turnover", small)]], colWidths=[doc.width], style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#F3F6F8")),("BOX",(0,0),(-1,-1),.5,colors.HexColor("#AAB7C4")),("LEFTPADDING",(0,0),(-1,-1),8),("RIGHTPADDING",(0,0),(-1,-1),8),("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
              Paragraph("四、运行结果与图形解读", h1),
              Paragraph("1. 均线与交易信号", h2),
              KeepTogether([Image(str(FIG_DIR/"figure1_signals.png"), width=doc.width, height=doc.width*0.50), Paragraph("图1 恒瑞医药收盘价、长短均线与买卖信号", caption)]),
-             Paragraph("图1中，绿色向上三角表示短均线上穿长均线后的买入信号，红色向下三角表示短均线下穿长均线后的卖出信号。信号主要出现在趋势方向发生持续变化的位置；当价格横盘震荡时，两条均线距离较近，容易反复交叉并产生交易成本。图中买卖标记用于展示信号确认日，实际持仓收益从下一交易日开始计算。", body),
+             Paragraph("图1中，绿色向上三角表示实际买入日，红色向下三角表示实际卖出日。每个第 t 日的买卖标记都只由第 t-1 日及更早的收盘数据决定，并按第 t 日开盘价模拟成交。当价格横盘震荡时，两条均线距离较近，容易反复交叉并产生交易成本。", body),
              PageBreak(),
              Paragraph("2. 策略净值与回撤", h2),
              KeepTogether([Image(str(FIG_DIR/"figure2_nav_drawdown.png"), width=doc.width, height=doc.width*0.61), Paragraph("图2 恒瑞医药 MA5/15 策略净值与回撤", caption)]),
@@ -232,20 +239,21 @@ def build_report(primary: pd.DataFrame, primary_metrics: dict, comparisons: pd.D
     rows = [["公司", "周期", "累计回报", "最大回撤", "夏普", "交易次数"]] + show[["公司","周期","累计回报","最大回撤","夏普比率","交易次数"]].values.tolist()
     comp_table = Table(rows, colWidths=[26*mm,19*mm,28*mm,28*mm,22*mm,24*mm], repeatRows=1)
     comp_table.setStyle(TableStyle([("FONTNAME",(0,0),(-1,-1),"SimSun"),("FONTSIZE",(0,0),(-1,-1),8.5),("LEADING",(0,0),(-1,-1),12),("BACKGROUND",(0,0),(-1,0),colors.HexColor("#D9EAF7")),("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white,colors.HexColor("#F6F8FA")]),("GRID",(0,0),(-1,-1),.35,colors.HexColor("#9EADB8")),("ALIGN",(1,0),(-1,-1),"CENTER"),("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),3),("BOTTOMPADDING",(0,0),(-1,-1),3)]))
-    best = comparisons.loc[comparisons.groupby("公司")["累计回报"].idxmax(), ["公司","周期","累计回报"]]
+    traded = comparisons[comparisons["交易次数"] > 0]
+    best = traded.loc[traded.groupby("公司")["累计回报"].idxmax(), ["公司","周期","累计回报"]]
     best_text = "；".join(f"{r.公司}在本样本中最高为 {r.周期}（{pct(r.累计回报)}）" for r in best.itertuples())
     story += [Paragraph("表2 不同股票与均线周期的回测比较", caption), comp_table,
               Spacer(1, 4*mm), KeepTogether([Image(str(FIG_DIR/"figure3_period_heatmap.png"), width=doc.width, height=doc.width*0.43), Paragraph("图3 不同股票与均线周期的累计回报比较", caption)]),
-              Paragraph(f"比较结果为：{best_text}。我发现，同一组均线参数用于不同股票时，收益可能相差很大；同一只股票更换周期后，结果也会明显改变。较短周期对价格变化反应快，但交易更频繁，也更容易受到短期噪声影响；较长周期比较平滑，但可能错过较快的趋势反转。", body),
+              Paragraph(f"在实际产生交易的组合中，比较结果为：{best_text}。50/200 日组合虽然是华尔街常用的长期趋势观察方法，但本样本只有 242 个交易日，四只股票在均线形成后都没有出现仓位切换，因此累计回报为 0、夏普比率不适用，不能据此评价该组合的长期效果。我还发现，同一组均线参数用于不同股票时，收益可能相差很大；较短周期反应快但交易频繁，较长周期更平滑却需要更长历史样本。", body),
               Paragraph("六、适用场景和应用心得", h1),
               KeepTogether([Paragraph("1. 适用场景", h2),
                            Paragraph("双均线策略更适合方向持续、趋势较清晰的行情。如果上涨或下跌能够保持一段时间，均线交叉有机会跟随主要趋势。策略规则直观、参数较少，也适合作为初学量化交易时的基础策略。", body)]),
               KeepTogether([Paragraph("2. 使用时需要注意的问题", h2),
-                           Paragraph("当市场处于窄幅震荡状态时，长短均线可能反复交叉，产生多次无效买卖和交易成本。均线本身具有滞后性，遇到快速下跌时可能不能及时卖出。此外，本次回测只使用收盘价和基础手续费，没有完整模拟滑点、停牌以及涨跌停无法成交等真实交易情况。", body)]),
+                           Paragraph("当市场处于窄幅震荡状态时，长短均线可能反复交叉，产生多次无效买卖和交易成本。均线本身具有滞后性，遇到快速下跌时可能不能及时卖出。本次回测已加入万分之一的滑点与价格冲击假设，但仍未完整模拟停牌、涨跌停无法成交以及成交量约束等真实交易情况。50/200 组合需要至少 200 个交易日才能形成首个有效信号，在本次约一年样本中的有效观察期很短，结果只能作为演示。", body)]),
               KeepTogether([Paragraph("3. 作业心得", h2),
                            Paragraph("通过这次作业，我把前两个任务中准备的数据和指标真正用于交易策略。可视化能够帮助检查信号位置是否合理，但评价策略时不能只看累计回报，还需要同时观察最大回撤、夏普比率和交易次数。参数比较也说明，不能因为某一组参数在当前样本中收益最高，就直接认为它以后仍然最好。后续可以增加更长时间的数据，并将样本划分为训练区间和测试区间进行验证。", body)]),
               Paragraph("七、作业总结", h1),
-              Paragraph("本次作业已经完成股价数据加载、长短均线计算、金叉与死叉识别、买卖信号绘制、模拟交易和绩效指标计算，并对四只股票及四组均线周期进行了比较。双均线策略能够用简单规则反映趋势变化，但实际效果取决于股票特征、均线周期和市场状态，使用时需要结合交易成本与风险控制。", body),
+              Paragraph("本次作业已经完成股价数据加载、长短均线计算、金叉与死叉识别、买卖信号绘制、模拟交易和绩效指标计算，并对四只股票及五组均线周期进行了比较。回测严格使用滞后信息决定当日交易，同时计入手续费、滑点和价格冲击。双均线策略能够用简单规则反映趋势变化，但实际效果取决于股票特征、均线周期和市场状态。", body),
               Paragraph("提交内容说明", h1),
               Paragraph("TASK3 文件夹中包括：辛家辉TASK3.pdf、task3_moving_average_strategy.py、三张结果图，以及主案例回测明细和多股票多周期比较结果 CSV。", body)]
     doc.build(story)

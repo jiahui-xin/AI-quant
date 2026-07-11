@@ -5,8 +5,10 @@
     { code: "688180_SH", name: "君实生物" },
     { code: "600196_SH", name: "复星医药" }
   ];
-  const periods = [[3, 10], [5, 15], [10, 30], [20, 60]];
-  const fee = 0.001;
+  const periods = [[3, 10], [5, 15], [10, 30], [20, 60], [50, 200]];
+  const commission = 0.0003;
+  const slippageImpact = 0.0001;
+  const totalCost = commission + slippageImpact;
   let activeCompany = 0;
   let activePeriod = 1;
   let priceSets = [];
@@ -42,16 +44,20 @@
 
   function backtest(rows, short, long) {
     const closes = rows.map((row) => Number(row.close));
+    const opens = rows.map((row) => Number(row.open));
     const dates = rows.map((row) => fmtDate(row.trade_date));
     const maShort = movingAverage(closes, short);
     const maLong = movingAverage(closes, long);
     const signal = closes.map((_, i) => maLong[i] === null ? 0 : +(maShort[i] > maLong[i]));
     const position = signal.map((_, i) => i === 0 ? 0 : signal[i - 1]);
-    const trades = signal.map((value, i) => i === 0 ? value : value - signal[i - 1]);
+    const trades = position.map((value, i) => i === 0 ? value : value - position[i - 1]);
     const marketReturn = closes.map((value, i) => i === 0 ? 0 : value / closes[i - 1] - 1);
     const strategyReturn = position.map((value, i) => {
       const prior = i === 0 ? 0 : position[i - 1];
-      return value * marketReturn[i] - fee * Math.abs(value - prior);
+      const overnight = i === 0 ? 0 : opens[i] / closes[i - 1] - 1;
+      const intraday = closes[i] / opens[i] - 1;
+      const gross = (1 + prior * overnight) * (1 + value * intraday) - 1;
+      return gross - totalCost * Math.abs(value - prior);
     });
     let strategyNav = 1;
     let buyHoldNav = 1;
@@ -70,10 +76,10 @@
     const mean = strategyReturn.reduce((sum, value) => sum + value, 0) / strategyReturn.length;
     const variance = strategyReturn.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (strategyReturn.length - 1);
     return {
-      dates, closes, maShort, maLong, trades, nav, benchmark, drawdown,
+      dates, opens, closes, maShort, maLong, trades, nav, benchmark, drawdown,
       cumulative: nav.at(-1) - 1,
       maxDrawdown: Math.min(...drawdown),
-      sharpe: variance > 0 ? Math.sqrt(252) * mean / Math.sqrt(variance) : 0,
+      sharpe: variance > 0 ? Math.sqrt(252) * mean / Math.sqrt(variance) : null,
       tradeCount: trades.filter((value) => value !== 0).length,
       buyHold: benchmark.at(-1) - 1
     };
@@ -101,23 +107,23 @@
     const metrics = [
       ["累计回报", signedPct(result.cumulative), result.cumulative],
       ["最大回撤", pct(result.maxDrawdown), result.maxDrawdown],
-      ["年化夏普", result.sharpe.toFixed(2), result.sharpe],
+      ["年化夏普", result.sharpe === null ? "--" : result.sharpe.toFixed(2), result.sharpe],
       ["交易次数", String(result.tradeCount), null]
     ];
     document.getElementById("task3MetricGrid").innerHTML = metrics.map(([label, value, raw]) => `
       <article class="metric-card">
         <div class="metric-top"><h3>${label}</h3><span class="badge">MA${period[0]}/${period[1]}</span></div>
         <div class="strategy-value ${raw === null ? "" : raw >= 0 ? "positive" : "negative"}">${value}</div>
-        <div class="report-meta">${company.name} · 次日生效 · 单边成本 0.10%</div>
+        <div class="report-meta">${company.name} · t日仅用t-1信息 · 开盘成交 · 单边成本0.04%</div>
       </article>
     `).join("");
   }
 
   function renderSignalChart(result, company, period) {
-    const buys = result.trades.flatMap((trade, i) => trade === 1 ? [[result.dates[i], result.closes[i]]] : []);
-    const sells = result.trades.flatMap((trade, i) => trade === -1 ? [[result.dates[i], result.closes[i]]] : []);
+    const buys = result.trades.flatMap((trade, i) => trade === 1 ? [[result.dates[i], result.opens[i]]] : []);
+    const sells = result.trades.flatMap((trade, i) => trade === -1 ? [[result.dates[i], result.opens[i]]] : []);
     document.getElementById("signalTitle").textContent = `图1 ${company.name} MA${period[0]}/${period[1]} 均线与交易信号`;
-    document.getElementById("signalCaption").textContent = `绿色三角为金叉买入信号，红色三角为死叉卖出信号；本组合共出现 ${result.tradeCount} 次买卖信号。`;
+    document.getElementById("signalCaption").textContent = `绿色三角为开盘买入，红色三角为开盘卖出；第t日交易只使用第t-1日及更早信息，本组合共出现 ${result.tradeCount} 次买卖。`;
     signalChart.setOption({
       animation: false,
       tooltip: { trigger: "axis" },
@@ -173,7 +179,7 @@
 
     document.getElementById("comparisonTable").innerHTML = `
       <thead><tr><th>公司</th><th>周期</th><th>累计回报</th><th>最大回撤</th><th>夏普比率</th><th>交易次数</th></tr></thead>
-      <tbody>${comparisonRows.map((row) => `<tr><td>${row["公司"]}</td><td>${row["周期"]}</td><td class="${Number(row["累计回报"]) >= 0 ? "positive" : "negative"}">${signedPct(row["累计回报"])}</td><td>${pct(row["最大回撤"])}</td><td>${Number(row["夏普比率"]).toFixed(2)}</td><td>${row["交易次数"]}</td></tr>`).join("")}</tbody>
+      <tbody>${comparisonRows.map((row) => `<tr><td>${row["公司"]}</td><td>${row["周期"]}</td><td class="${Number(row["累计回报"]) >= 0 ? "positive" : "negative"}">${signedPct(row["累计回报"])}</td><td>${pct(row["最大回撤"])}</td><td>${row["夏普比率"] === "" ? "--" : Number(row["夏普比率"]).toFixed(2)}</td><td>${row["交易次数"]}</td></tr>`).join("")}</tbody>
     `;
   }
 
