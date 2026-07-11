@@ -11,9 +11,11 @@ AI-quant/
 ├── task2.html                 # TASK2 展示页面
 ├── task3.html                 # TASK3 展示页面
 ├── TASK1/                     # TASK1 提交物
-│   └── 辛家辉TASK1.pdf
+│   ├── 辛家辉TASK1.pdf
+│   └── fetch_tushare_data.py
 ├── TASK2/                     # TASK2 提交物与结果
 │   ├── 辛家辉TASK2.pdf
+│   ├── task2_indicator_analysis.py
 │   └── results/
 ├── TASK3/                     # TASK3 报告、源码、图表与结果
 │   ├── 辛家辉TASK3.pdf

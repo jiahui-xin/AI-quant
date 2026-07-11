@@ -10,7 +10,8 @@ from pathlib import Path
 
 
 TOKEN = os.getenv("TUSHARE_TOKEN")
-OUT_DIR = Path(__file__).resolve().parent / "assets"
+ROOT = Path(__file__).resolve().parents[1]
+OUT_DIR = ROOT / "assets"
 COMPANIES = [
     {"code": "600276.SH", "name": "恒瑞医药", "role": "本土创新药转型龙头", "focus": "肿瘤、麻醉、代谢、自免", "theme": "从仿制药优势向创新药平台升级，PD-1、ADC、小分子与国际化并行。"},
     {"code": "688235.SH", "name": "百济神州", "role": "全球化创新药代表", "focus": "肿瘤、自研商业化、海外临床", "theme": "中国创新药全球临床和商业化能力的代表，拥有BTK抑制剂、PD-1等核心资产。"},
