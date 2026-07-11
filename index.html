@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>北大光华商业分析（BA）工作坊——量化交易：AI大模型辅助的金融交易策略</title>
-  <link rel="stylesheet" href="assets/styles.css?v=4">
+  <link rel="stylesheet" href="assets/styles.css?v=6">
 </head>
 <body>
   <header class="hero portal-hero">
@@ -13,55 +13,28 @@
       <div class="nav-links">
         <a href="task1.html">TASK1</a>
         <a href="task2.html">TASK2</a>
-        <a href="downloads/辛家辉TASK2.pdf">PDF</a>
+        <a href="task3.html">TASK3</a>
       </div>
     </nav>
     <section class="hero-inner">
       <p class="eyebrow">Peking University Guanghua Business Analysis Workshop</p>
       <h1>北大光华商业分析（BA）工作坊——量化交易：AI大模型辅助的金融交易策略</h1>
-      <p class="hero-copy">围绕创新药龙头企业，逐步搭建数据引擎、完成数据诊断、构造交易指标，并用网页看板管理每一次任务成果。</p>
+      <p class="hero-copy">围绕创新药龙头企业，从数据引擎、数据诊断与指标构造，逐步推进到交易策略和回测，用统一网页入口管理每一次任务成果。</p>
       <div class="hero-actions">
-        <a class="button primary" href="task2.html">查看 TASK2 指标看板</a>
-        <a class="button secondary" href="task1.html">回看 TASK1 数据引擎</a>
+        <a class="button primary" href="task3.html">查看 TASK3 策略回测</a>
+        <a class="button secondary" href="#tasks">浏览全部任务</a>
       </div>
     </section>
   </header>
 
   <main>
-    <section class="section">
+    <section class="section" id="tasks">
       <div class="section-head">
         <p class="eyebrow">Course Pages</p>
         <h2>页面管理</h2>
-        <p>同一个 GitHub 仓库可以管理多个页面。当前首页负责导航，具体任务分别放在独立 HTML 页面中，数据、脚本和 PDF 统一放在 assets 与 downloads 目录下。</p>
+        <p>首页由统一任务清单生成卡片，每个 TASK 使用独立页面展示成果。后续新增任务时继续沿用 taskN.html、任务目录与共享 assets 的结构。</p>
       </div>
-      <div class="portal-grid">
-        <article class="portal-card">
-          <span class="task-mark">TASK1</span>
-          <h3>量化交易初体验：从零搭建数据引擎</h3>
-          <p>使用 Tushare 获取创新药代表公司的日线行情，构建 CSV 数据文件，并展示公司矩阵、K 线看板和行业对照图谱。</p>
-          <div class="tags">
-            <span class="tag">Tushare</span>
-            <span class="tag">数据引擎</span>
-            <span class="tag">创新药龙头</span>
-          </div>
-          <a class="csv-link" href="task1.html">进入 TASK1</a>
-          <a class="csv-link secondary-link" href="downloads/辛家辉TASK1.pdf">下载 PDF</a>
-        </article>
-
-        <article class="portal-card featured">
-          <span class="task-mark">TASK2</span>
-          <h3>数据炼金术：数据诊断与构造交易指标</h3>
-          <p>对恒瑞医药已保存股价数据进行缺失值诊断、描述性统计，计算 RSI、MACD、布林带和 KDJ，并形成交互图表。</p>
-          <div class="tags">
-            <span class="tag">RSI</span>
-            <span class="tag">MACD</span>
-            <span class="tag">Bollinger Bands</span>
-            <span class="tag">KDJ</span>
-          </div>
-          <a class="csv-link" href="task2.html">进入 TASK2</a>
-          <a class="csv-link secondary-link" href="downloads/辛家辉TASK2.pdf">下载 PDF</a>
-        </article>
-      </div>
+      <div class="portal-grid" id="taskPortalGrid"></div>
     </section>
   </main>
 
@@ -71,6 +44,8 @@
     <span>部署：GitHub Pages</span>
     <strong>本页面仅供课程研究参考，不构成投资建议。</strong>
   </footer>
-  <script src="assets/i18n.js?v=5"></script>
+  <script src="assets/tasks.js?v=1"></script>
+  <script src="assets/portal.js?v=1"></script>
+  <script src="assets/i18n.js?v=6"></script>
 </body>
 </html>
