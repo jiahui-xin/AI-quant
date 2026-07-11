@@ -19,6 +19,7 @@
 | TASK1 | 从零搭建量化交易数据引擎 | Tushare 数据抓取、日线 CSV、行情与公司对比看板 |
 | TASK2 | 数据诊断与交易指标构造 | 缺失值诊断、RSI、MACD、布林带、KDJ |
 | TASK3 | 双均线交易策略与回测 | 金叉与死叉、MA50/200、滞后信号、交易成本、MDD、夏普比率 |
+| TASK4 | 海龟交易法则实战 | 高低点通道、ATR、2ATR 止损、严格时序回测、参数比较 |
 
 ### 仓库结构
 
@@ -28,9 +29,11 @@ AI-quant/
 ├── task1.html                 # TASK1 展示页面
 ├── task2.html                 # TASK2 展示页面
 ├── task3.html                 # TASK3 展示页面
+├── task4.html                 # TASK4 展示页面
 ├── TASK1/                     # TASK1 PDF 与 Python 源码
 ├── TASK2/                     # TASK2 PDF、Python 源码与指标结果
 ├── TASK3/                     # TASK3 PDF、Python 源码、图表与回测结果
+├── TASK4/                     # TASK4 PDF、Python 源码、图表与海龟回测结果
 └── assets/                    # 共享样式、前端脚本和原始行情数据
 ```
 
@@ -59,6 +62,7 @@ This repository contains quantitative-trading coursework for the PKU Guanghua Bu
 | TASK1 | Building a quantitative market-data engine | Tushare data collection, daily CSV files, price and company-comparison dashboards |
 | TASK2 | Data diagnostics and trading indicators | Missing-value diagnostics, RSI, MACD, Bollinger Bands, and KDJ |
 | TASK3 | Moving-average strategy and backtesting | Golden/death crosses, MA50/200, lagged signals, trading costs, MDD, and Sharpe ratio |
+| TASK4 | Turtle Trading strategy | Price channels, ATR, 2ATR stop loss, strict-timing backtest, and parameter comparison |
 
 ### Repository Structure
 
@@ -68,9 +72,11 @@ AI-quant/
 ├── task1.html                 # TASK1 dashboard
 ├── task2.html                 # TASK2 dashboard
 ├── task3.html                 # TASK3 dashboard
+├── task4.html                 # TASK4 dashboard
 ├── TASK1/                     # TASK1 PDF and Python source
 ├── TASK2/                     # TASK2 PDF, Python source, and indicator results
 ├── TASK3/                     # TASK3 PDF, Python source, figures, and backtest results
+├── TASK4/                     # TASK4 PDF, Python source, figures, and Turtle backtest results
 └── assets/                    # Shared styles, frontend scripts, and raw market data
 ```
 

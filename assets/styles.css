@@ -543,6 +543,14 @@ h2 {
   min-height: 76vh;
 }
 
+.task4-hero {
+  min-height: 76vh;
+  background:
+    linear-gradient(100deg, rgba(9, 31, 31, .97), rgba(17, 82, 72, .84) 58%, rgba(116, 79, 31, .72)),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(255,255,255,.045) 80px 81px),
+    linear-gradient(135deg, #0b302f, #286c5d);
+}
+
 .portal-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

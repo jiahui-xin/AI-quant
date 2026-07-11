@@ -25,5 +25,14 @@ window.AIQ_TASKS = [
     page: "task3.html",
     pdf: "TASK3/辛家辉TASK3.pdf",
     status: "completed"
+  },
+  {
+    id: "TASK4",
+    title: "复刻传奇：海龟交易法则实战演练",
+    description: "使用高低点通道、ATR 与 2ATR 止损构建海龟趋势策略，完成严格时序回测和跨股票参数比较。",
+    tags: ["Turtle", "Donchian Channel", "ATR", "Stop Loss", "Backtest"],
+    page: "task4.html",
+    pdf: "TASK4/辛家辉TASK4.pdf",
+    status: "completed"
   }
 ];

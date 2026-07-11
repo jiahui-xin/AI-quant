@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TASK4 · 海龟交易法则实战</title>
+  <link rel="stylesheet" href="assets/styles.css?v=7">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <header class="hero task4-hero">
+    <nav class="nav">
+      <div class="brand">AI-quant / TASK4</div>
+      <div class="nav-links"><a href="index.html">首页</a><a href="task1.html">TASK1</a><a href="task2.html">TASK2</a><a href="task3.html">TASK3</a><a href="TASK4/辛家辉TASK4.pdf">PDF</a></div>
+    </nav>
+    <section class="hero-inner">
+      <p class="eyebrow">Turtle Trading · Trend Following Lab</p>
+      <h1>复刻传奇：海龟交易法则实战</h1>
+      <p class="hero-copy">使用高低点通道识别趋势突破，以 ATR 衡量波动并设置止损，通过严格的滞后信号和开盘执行完成模拟回测。</p>
+      <div class="hero-actions"><a class="button primary" href="#turtleLab">进入海龟实验室</a><a class="button secondary" href="TASK4/辛家辉TASK4.pdf">下载作业报告</a></div>
+    </section>
+  </header>
+  <main>
+    <section class="section">
+      <div class="section-head"><p class="eyebrow">Core Rules</p><h2>海龟策略的四个核心环节</h2><p>规则关注“何时突破、市场有多波动、何时认错、如何评价”，而不是预测未来价格。</p></div>
+      <div class="indicator-grid">
+        <article class="indicator-card"><h3>入场通道</h3><p>前一日收盘价突破此前 N 日最高价后，在下一交易日开盘买入。</p></article>
+        <article class="indicator-card"><h3>退出通道</h3><p>前一日收盘价跌破此前 M 日最低价后，在下一交易日开盘卖出。</p></article>
+        <article class="indicator-card"><h3>ATR</h3><p>20 日平均真实波幅衡量近期价格波动，并用于调整止损距离。</p></article>
+        <article class="indicator-card"><h3>2ATR 止损</h3><p>初始止损价为买入开盘价减 2 倍入场前 ATR，控制单次趋势判断错误。</p></article>
+      </div>
+    </section>
+    <section class="section dashboard-section" id="turtleLab">
+      <div class="section-head"><p class="eyebrow">Interactive Backtest</p><h2>海龟策略实验室</h2><p>第 t 日交易只使用第 t-1 日及更早信息，按第 t 日开盘价执行；单边手续费万分之三，滑点与价格冲击万分之一。</p></div>
+      <div class="strategy-toolbar">
+        <div><span class="control-label">选择股票</span><div class="control-row task3-control" id="task4CompanyControls" role="group" aria-label="选择股票"></div></div>
+        <div><span class="control-label">入场/退出通道</span><div class="control-row task3-control" id="task4ChannelControls" role="group" aria-label="选择通道周期"></div></div>
+      </div>
+      <div class="metric-grid" id="task4MetricGrid"></div>
+      <div class="chart-stack task3-stack">
+        <div class="chart-panel"><div class="panel-title" id="turtleSignalTitle">图1 海龟通道与交易信号</div><div id="turtleSignalChart" class="chart tall"></div><p class="caption" id="turtleSignalCaption"></p></div>
+        <div class="chart-panel"><div class="panel-title" id="turtleNavTitle">图2 策略净值、ATR 与回撤</div><div id="turtleNavChart" class="chart tall"></div><p class="caption" id="turtleNavCaption"></p></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-head"><p class="eyebrow">Parameter Comparison</p><h2>股票与通道参数比较</h2><p>比较四只股票和 10/5、20/10、40/20、55/20 四组通道。短通道敏感，长通道更依赖足够长的历史样本。</p></div>
+      <div class="chart-panel comparison-panel"><div class="panel-title">图3 不同股票与通道参数累计回报</div><div id="turtleComparisonChart" class="chart"></div><p class="caption">绿色代表较高累计回报，红色代表较低累计回报。</p></div>
+      <div class="table-wrap"><table class="data-table" id="turtleComparisonTable"></table></div>
+    </section>
+    <section class="section visual-band">
+      <div class="section-head"><p class="eyebrow">Artifacts</p><h2>提交文件与可复用成果</h2><p>TASK4 独立保存报告、Python 源码、四张图和回测 CSV，网页继续复用共享行情数据。</p></div>
+      <div class="portal-grid small-grid">
+        <article class="portal-card"><span class="task-mark">REPORT</span><h3>辛家辉TASK4.pdf</h3><p>包含策略原理、通道与 ATR 解释、代码、图表、回测指标和参数比较。</p><a class="csv-link" href="TASK4/辛家辉TASK4.pdf">下载 PDF</a></article>
+        <article class="portal-card"><span class="task-mark">CODE & DATA</span><h3>海龟策略源码与结果</h3><p>完整 Python 脚本可重新生成全部指标、图表、CSV 和报告。</p><a class="csv-link" href="TASK4/task4_turtle_strategy.py">查看 Python 源码</a><a class="csv-link secondary-link" href="TASK4/results/all_stocks_channel_comparison.csv">下载比较结果</a></article>
+      </div>
+    </section>
+  </main>
+  <footer class="footer"><span>作者：辛家辉</span><span>策略：海龟趋势跟随</span><span>参数：四只股票 / 四组通道</span><strong>本页面仅供课程研究参考，不构成投资建议。</strong></footer>
+  <script src="assets/task4_app.js?v=1"></script><script src="assets/i18n.js?v=7"></script>
+</body>
+</html>
