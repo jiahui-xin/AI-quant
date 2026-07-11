@@ -165,26 +165,52 @@ def build_report(primary: pd.DataFrame, primary_metrics: dict, comparisons: pd.D
         canvas.drawCentredString(A4[0]/2, 10*mm, f"- {canvas.getPageNumber()} -"); canvas.restoreState()
     doc.addPageTemplates(PageTemplate(id="main", frames=frame, onPage=footer))
 
-    story = [Spacer(1, 12*mm), Paragraph("TASK3 策略首秀：用均线交叉反映市场趋势变化", title),
-             Spacer(1, 4*mm), Paragraph("姓名：辛家辉", center), Paragraph("日期：2026年7月11日", center),
-             Spacer(1, 10*mm), Paragraph("摘要", h1),
-             Paragraph("本文基于 TASK1 已保存的四只创新药股票日线数据，实现经典双均线择时策略。以恒瑞医药（600276.SH）的 5 日/15 日简单移动平均线为主案例，按照“当日收盘确认信号、下一交易日持仓生效”的规则进行回测，并计入单边 0.10% 交易成本。策略评价采用累计回报、最大回撤和年化夏普比率，同时比较四只股票及四组均线周期。结果表明，双均线策略能够把价格波动转换为清晰、可复现的趋势信号，但收益对标的、参数和样本区间较敏感，不宜把单次样本中的最优参数直接视为未来最优参数。", body),
-             Paragraph("关键词：双均线；金叉；死叉；回测；最大回撤；夏普比率", body),
-             Paragraph("一、策略原理与基本概念", h1),
+    info_table = Table([["课程任务", "TASK3 策略首秀"], ["姓名", "辛家辉"],
+                        ["完成日期", "2026年7月11日"], ["提交文件", "辛家辉TASK3.pdf"]],
+                       colWidths=[35*mm, 90*mm])
+    info_table.setStyle(TableStyle([("FONTNAME",(0,0),(-1,-1),"SimSun"),("FONTSIZE",(0,0),(-1,-1),10.5),
+                                    ("LEADING",(0,0),(-1,-1),15.75),("BACKGROUND",(0,0),(0,-1),colors.HexColor("#EAF2F8")),
+                                    ("GRID",(0,0),(-1,-1),.5,colors.HexColor("#8FA4B5")),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+                                    ("ALIGN",(0,0),(0,-1),"CENTER"),("LEFTPADDING",(0,0),(-1,-1),8),
+                                    ("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
+    task_table = Table([
+        ["1", "解释双均线策略中的金叉、死叉等概念"],
+        ["2", "解释累计回报、最大回撤和夏普比率等评价指标"],
+        ["3", "使用 Python 完成数据加载、均线计算、信号生成、可视化与回测"],
+        ["4", "更换股票和均线周期，比较结果并总结适用场景与心得"],
+    ], colWidths=[12*mm, doc.width-12*mm])
+    task_table.setStyle(TableStyle([("FONTNAME",(0,0),(-1,-1),"SimSun"),("FONTSIZE",(0,0),(-1,-1),10.5),
+                                    ("LEADING",(0,0),(-1,-1),15.75),("GRID",(0,0),(-1,-1),.35,colors.HexColor("#B2BEC7")),
+                                    ("ALIGN",(0,0),(0,-1),"CENTER"),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+                                    ("TOPPADDING",(0,0),(-1,-1),4),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
+
+    story = [Spacer(1, 8*mm), Paragraph("TASK3 策略首秀：用均线交叉反映市场趋势变化", title),
+             Paragraph("量化交易课程个人作业报告", center), Spacer(1, 8*mm), info_table,
+             Spacer(1, 7*mm), Paragraph("一、作业任务", h1), task_table,
+             Paragraph("本次作业使用 TASK1 已保存的四只创新药股票日线数据。恒瑞医药（600276.SH）作为主要展示对象，短期均线和长期均线设置为 5 日与 15 日；另外使用其他股票和周期组合进行比较。回测采用“当日收盘确认信号、下一交易日持仓生效”的方式，并计入单边 0.10% 交易成本。", body),
+             Paragraph("二、双均线策略与评价指标", h1),
+             Paragraph("1. 双均线策略", h2),
              Paragraph("双均线策略同时计算短期均线和长期均线。短期均线对新价格反应较快，长期均线更平滑，用于刻画中期趋势。当短期均线由下向上穿越长期均线时形成“金叉”，通常解释为近期价格动能转强，策略由空仓转为持有；当短期均线由上向下穿越长期均线时形成“死叉”，通常解释为趋势转弱，策略卖出并回到空仓。本作业只做多、不做空。", body),
              Paragraph("简单移动平均线可写为 MA(n)<sub>t</sub> = (P<sub>t</sub> + … + P<sub>t-n+1</sub>)/n，其中 P<sub>t</sub> 为第 t 个交易日收盘价。均线本质上是滞后指标：平滑能够过滤部分短期噪声，但也会使入场和离场晚于价格拐点。", body),
-             Paragraph("二、策略评价指标", h1),
+             Paragraph("2. 策略评价指标", h2),
              Paragraph("累计回报（Cumulative Return）表示整个回测期内资金的总增值比例，即期末净值减 1。它直观反映最终盈亏，但不能单独说明实现该回报时承担了多大风险。", body),
-             Paragraph("最大回撤（Maximum Drawdown, MDD）是净值从历史峰值到随后谷值的最大跌幅。本文按 MDD = min(V<sub>t</sub>/max<sub>s≤t</sub>V<sub>s</sub> - 1) 计算；数值越负，表示历史最坏亏损越大。", body),
-             Paragraph("夏普比率（Sharpe Ratio）衡量单位波动对应的超额收益。由于样本为日频且回测期较短，本文将无风险日收益近似设为 0，按 √252 × 日策略收益均值 / 日策略收益标准差进行年化。夏普比率越高通常越好，但它对样本长度、收益分布和无风险利率设定敏感。", body),
-             Paragraph("三、数据与 Python 实现", h1),
-             Paragraph(f"数据读取自 assets 目录中的日线 CSV，覆盖 {primary.trade_date.min():%Y-%m-%d} 至 {primary.trade_date.max():%Y-%m-%d}，共 {len(primary)} 个交易日。主案例设置短均线为 5 日、长均线为 15 日。计算步骤为：读取并按日期升序排序；滚动计算 MA5 与 MA15；比较两条均线生成持有信号；由信号变化识别买卖点；将信号滞后一天形成实际持仓；扣除换仓成本；最后由日收益序列计算净值和风险指标。", body),
+             Paragraph("最大回撤（Maximum Drawdown, MDD）是净值从历史峰值到随后谷值的最大跌幅。本次作业按 MDD = min(V<sub>t</sub>/max<sub>s≤t</sub>V<sub>s</sub> - 1) 计算；数值越负，表示历史最坏亏损越大。", body),
+             Paragraph("夏普比率（Sharpe Ratio）衡量单位波动对应的超额收益。由于样本为日频且回测期较短，本次作业将无风险日收益近似设为 0，按 √252 × 日策略收益均值 / 日策略收益标准差进行年化。夏普比率越高通常越好，但它对样本长度、收益分布和无风险利率设定敏感。", body),
+             KeepTogether([Paragraph("三、Python 实现过程", h1),
+                           Paragraph("1. 加载并整理数据", h2),
+                           Paragraph(f"程序从 assets 目录读取日线 CSV，将交易日期转换为日期格式并按升序排列。数据区间为 {primary.trade_date.min():%Y-%m-%d} 至 {primary.trade_date.max():%Y-%m-%d}，共 {len(primary)} 个交易日。", body)]),
+             Paragraph("2. 计算均线和交易信号", h2),
+             Paragraph("主案例滚动计算 MA5 与 MA15。MA5 高于 MA15 时持有股票，MA5 低于 MA15 时空仓；信号由 0 变为 1 时标记买入，由 1 变为 0 时标记卖出。", body),
+             Paragraph("3. 模拟交易并计算指标", h2),
+             Paragraph("为避免使用未来信息，程序将当日信号滞后一个交易日形成实际持仓。策略日收益等于持仓乘以股票日收益，再减去换仓成本；由日收益累计得到策略净值，并据此计算累计回报、最大回撤和夏普比率。", body),
              Paragraph("关键实现如下（完整代码与结果 CSV 随报告保存在 TASK3 目录）：", body),
              Table([[Paragraph("df['ma_short'] = df['close'].rolling(5).mean()<br/>df['ma_long'] = df['close'].rolling(15).mean()<br/>df['signal'] = (df['ma_short'] &gt; df['ma_long']).astype(int)<br/>df['position'] = df['signal'].shift(1).fillna(0)<br/>turnover = df['position'].diff().abs().fillna(0)<br/>df['strategy_return'] = df['position'] * df['close'].pct_change().fillna(0) - 0.001 * turnover<br/>df['strategy_nav'] = (1 + df['strategy_return']).cumprod()", small)]], colWidths=[doc.width], style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#F3F6F8")),("BOX",(0,0),(-1,-1),.5,colors.HexColor("#AAB7C4")),("LEFTPADDING",(0,0),(-1,-1),8),("RIGHTPADDING",(0,0),(-1,-1),8),("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
-             Paragraph("四、主案例回测结果：恒瑞医药 MA5/15", h1),
+             Paragraph("四、运行结果与图形解读", h1),
+             Paragraph("1. 均线与交易信号", h2),
              KeepTogether([Image(str(FIG_DIR/"figure1_signals.png"), width=doc.width, height=doc.width*0.50), Paragraph("图1 恒瑞医药收盘价、长短均线与买卖信号", caption)]),
              Paragraph("图1中，绿色向上三角表示短均线上穿长均线后的买入信号，红色向下三角表示短均线下穿长均线后的卖出信号。信号主要出现在趋势方向发生持续变化的位置；当价格横盘震荡时，两条均线距离较近，容易反复交叉并产生交易成本。图中买卖标记用于展示信号确认日，实际持仓收益从下一交易日开始计算。", body),
              PageBreak(),
+             Paragraph("2. 策略净值与回撤", h2),
              KeepTogether([Image(str(FIG_DIR/"figure2_nav_drawdown.png"), width=doc.width, height=doc.width*0.61), Paragraph("图2 恒瑞医药 MA5/15 策略净值与回撤", caption)]),
              Paragraph("图2上半部分对比策略净值与买入持有净值，下半部分显示策略从历史净值高点的回撤。净值曲线用来观察收益累积路径，回撤曲线则揭示仅看期末收益容易忽略的中途亏损压力。", body)]
 
@@ -197,8 +223,8 @@ def build_report(primary: pd.DataFrame, primary_metrics: dict, comparisons: pd.D
     t = Table(metric_data, colWidths=[34*mm, 34*mm, doc.width-68*mm], repeatRows=1)
     t.setStyle(TableStyle([("FONTNAME",(0,0),(-1,-1),"SimSun"),("FONTSIZE",(0,0),(-1,-1),9.5),("LEADING",(0,0),(-1,-1),14),("BACKGROUND",(0,0),(-1,0),colors.HexColor("#D9EAF7")),("GRID",(0,0),(-1,-1),.4,colors.HexColor("#8FA4B5")),("VALIGN",(0,0),(-1,-1),"MIDDLE"),("ALIGN",(0,0),(1,-1),"CENTER"),("LEFTPADDING",(0,0),(-1,-1),5),("RIGHTPADDING",(0,0),(-1,-1),5),("TOPPADDING",(0,0),(-1,-1),4),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
     story += [Spacer(1, 2*mm), Paragraph("表1 恒瑞医药 MA5/15 策略绩效", caption), t,
-              Paragraph(f"表1显示，策略累计回报为 {pct(primary_metrics['累计回报'])}，最大回撤为 {pct(primary_metrics['最大回撤'])}，年化夏普比率为 {num(primary_metrics['夏普比率'])}。同期买入持有收益为 {pct(primary_metrics['买入持有'])}。这些结果只描述当前样本，不构成未来收益保证；尤其是约一年的观察期较短，夏普比率和最优周期都可能随样本延长而明显变化。", body),
-              Paragraph("五、跨股票与跨周期比较", h1)]
+              Paragraph(f"从表1可以读出：策略累计回报为 {pct(primary_metrics['累计回报'])}，最大回撤为 {pct(primary_metrics['最大回撤'])}，年化夏普比率为 {num(primary_metrics['夏普比率'])}，同期买入持有收益为 {pct(primary_metrics['买入持有'])}。MA5/15 在这一样本中的收益为正，但优势不明显，而且回撤较大。因此，不能只根据期末盈利就判断策略效果很好，还必须结合回撤和夏普比率。", body),
+              Paragraph("五、更换股票和均线周期", h1)]
 
     show = comparisons.copy()
     show["累计回报"] = show["累计回报"].map(pct); show["最大回撤"] = show["最大回撤"].map(pct)
@@ -210,15 +236,18 @@ def build_report(primary: pd.DataFrame, primary_metrics: dict, comparisons: pd.D
     best_text = "；".join(f"{r.公司}在本样本中最高为 {r.周期}（{pct(r.累计回报)}）" for r in best.itertuples())
     story += [Paragraph("表2 不同股票与均线周期的回测比较", caption), comp_table,
               Spacer(1, 4*mm), KeepTogether([Image(str(FIG_DIR/"figure3_period_heatmap.png"), width=doc.width, height=doc.width*0.43), Paragraph("图3 不同股票与均线周期的累计回报比较", caption)]),
-              Paragraph(f"图3与表2说明参数表现并不稳定：{best_text}。同一周期在不同股票上的结果可能相反，同一股票的结果也会随周期改变。较短周期反应快，但更易受噪声影响并增加换手；较长周期能过滤部分震荡，却可能错过快速反转。这里的比较用于观察敏感性，而不是在同一样本中挑选“冠军参数”后宣称其具有样本外优势。", body),
-              Paragraph("六、适用场景、局限与应用心得", h1),
-              Paragraph("双均线策略更适合方向持续、趋势较清晰的市场。当上涨或下跌能够延续若干交易日时，均线交叉有机会让策略参与主要趋势，并在趋势转弱后退出。它也适合用作基础择时模块：规则透明、参数少、容易复现，便于进一步加入止损、仓位控制、成交量过滤或多资产配置。", body),
-              Paragraph("该策略不适合频繁来回波动的窄幅震荡市场。此时短长均线会反复交叉，形成“假突破”和连续小额亏损。均线还存在天然滞后，极端行情中可能在下跌开始一段时间后才卖出。回测结果还受到复权方式、成交价格、停牌与涨跌停可交易性、手续费和滑点等假设影响；本作业使用收盘价并只模拟基础成本，尚未完整复刻真实订单执行。", body),
-              Paragraph("本次实践的核心体会是：交易信号的可视化只是第一步，策略评价必须同时观察收益、风险和交易频率；参数比较也不能只看最高累计回报。更稳健的后续方法应将数据划分为训练期和测试期，采用滚动样本外检验，并在更多股票和更长区间上考察参数稳定性。", body),
-              Paragraph("七、结论", h1),
-              Paragraph("本文完成了从已存股价数据加载、均线计算、金叉与死叉识别、图形展示，到模拟交易、绩效计算和参数敏感性分析的完整流程。双均线策略能够简洁地反映趋势变化，但并不存在对所有股票和市场阶段都占优的固定周期。实际应用中，应把它视为可解释的趋势跟随基线，并通过样本外验证、交易成本建模和风险控制提高可信度。", body),
-              Paragraph("参考资料", h1),
-              Paragraph("[1] Brock, W., Lakonishok, J., &amp; LeBaron, B. (1992). Simple Technical Trading Rules and the Stochastic Properties of Stock Returns. Journal of Finance, 47(5), 1731-1764.<br/>[2] Sharpe, W. F. (1994). The Sharpe Ratio. Journal of Portfolio Management, 21(1), 49-58.<br/>[3] pandas documentation: rolling window calculations and percentage change methods.", small)]
+              Paragraph(f"比较结果为：{best_text}。我发现，同一组均线参数用于不同股票时，收益可能相差很大；同一只股票更换周期后，结果也会明显改变。较短周期对价格变化反应快，但交易更频繁，也更容易受到短期噪声影响；较长周期比较平滑，但可能错过较快的趋势反转。", body),
+              Paragraph("六、适用场景和应用心得", h1),
+              KeepTogether([Paragraph("1. 适用场景", h2),
+                           Paragraph("双均线策略更适合方向持续、趋势较清晰的行情。如果上涨或下跌能够保持一段时间，均线交叉有机会跟随主要趋势。策略规则直观、参数较少，也适合作为初学量化交易时的基础策略。", body)]),
+              KeepTogether([Paragraph("2. 使用时需要注意的问题", h2),
+                           Paragraph("当市场处于窄幅震荡状态时，长短均线可能反复交叉，产生多次无效买卖和交易成本。均线本身具有滞后性，遇到快速下跌时可能不能及时卖出。此外，本次回测只使用收盘价和基础手续费，没有完整模拟滑点、停牌以及涨跌停无法成交等真实交易情况。", body)]),
+              KeepTogether([Paragraph("3. 作业心得", h2),
+                           Paragraph("通过这次作业，我把前两个任务中准备的数据和指标真正用于交易策略。可视化能够帮助检查信号位置是否合理，但评价策略时不能只看累计回报，还需要同时观察最大回撤、夏普比率和交易次数。参数比较也说明，不能因为某一组参数在当前样本中收益最高，就直接认为它以后仍然最好。后续可以增加更长时间的数据，并将样本划分为训练区间和测试区间进行验证。", body)]),
+              Paragraph("七、作业总结", h1),
+              Paragraph("本次作业已经完成股价数据加载、长短均线计算、金叉与死叉识别、买卖信号绘制、模拟交易和绩效指标计算，并对四只股票及四组均线周期进行了比较。双均线策略能够用简单规则反映趋势变化，但实际效果取决于股票特征、均线周期和市场状态，使用时需要结合交易成本与风险控制。", body),
+              Paragraph("提交内容说明", h1),
+              Paragraph("TASK3 文件夹中包括：辛家辉TASK3.pdf、task3_moving_average_strategy.py、三张结果图，以及主案例回测明细和多股票多周期比较结果 CSV。", body)]
     doc.build(story)
 
 
