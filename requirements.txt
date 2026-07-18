@@ -1,0 +1,20 @@
+# AI-quant 量化交易课程作业依赖
+# 安装方式：pip install -r requirements.txt
+# Python >= 3.10
+
+# TASK2 / TASK3 / TASK4 / TASK5 共用
+numpy==2.5.1
+pandas==3.0.3
+matplotlib==3.11.1
+
+# TASK3 / TASK4 / TASK5 PDF 报告生成
+reportlab==5.0.0
+
+# TASK5 分类机器学习（决策树、随机森林、混淆矩阵、AUC、ROC）
+scikit-learn==1.9.0
+
+# 说明：
+# - TASK1 仅使用 Python 标准库（urllib、csv、json），无需第三方包。
+# - PDF 报告需要系统中文字体 SimSun（macOS 路径：~/Library/Fonts/SimSun.ttf）。
+# - 如需重新抓取 TASK1 的 Tushare 行情数据，需自备 Tushare Pro token，
+#   但 TASK1 已提供离线 CSV（assets/*_daily.csv），无需联网即可复现。

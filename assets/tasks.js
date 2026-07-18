@@ -34,5 +34,23 @@ window.AIQ_TASKS = [
     page: "task4.html",
     pdf: "TASK4/辛家辉TASK4.pdf",
     status: "completed"
+  },
+  {
+    id: "TASK5",
+    title: "AI 交易引擎：分类型机器学习算法与场景应用",
+    description: "使用 A 股财务指标收益数据集，构建决策树与随机森林分类模型预测股票涨跌方向，并通过混淆矩阵、AUC 与 ROC 曲线评估模型表现。",
+    tags: ["Decision Tree", "Random Forest", "Confusion Matrix", "AUC", "ROC"],
+    page: "task5.html",
+    pdf: "TASK5/辛家辉TASK5.pdf",
+    status: "completed"
+  },
+  {
+    id: "TASK6",
+    title: "智能决策者：用机器学习定制专属策略",
+    description: "用 A 股截面财务因子训练四种机器学习模型，预测股票下一季度收益，每季度按预测得分挑选 Top 30 股票构建等权与预测加权组合，对比四模型与市场基准。",
+    tags: ["ML Stock Selection", "Top 30", "EW / PW", "Sharpe", "Backtest"],
+    page: "task6.html",
+    pdf: "TASK6/辛家辉TASK6.pdf",
+    status: "completed"
   }
 ];

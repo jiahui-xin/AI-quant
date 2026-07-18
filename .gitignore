@@ -1,2 +1,27 @@
+# Python 字节码缓存（自动生成，无需提交）
 __pycache__/
 *.py[cod]
+
+# 训练好的模型文件（可由脚本重新生成）
+*.pkl
+
+# 系统文件
+.DS_Store
+
+# WorkBuddy 工作区数据（本地记忆与配置，不上传）
+.workbuddy/
+
+# 宠物运行数据（本地应用数据，不上传）
+hatch-pet-runs/
+
+# 课程课件截图（仅本地使用，不上传 GitHub）
+material/task1/
+material/task5/
+material/task6/
+
+# 说明：
+# - material/ 目录下的 CSV 数据文件（model_data*.csv、行情数据.csv）需要上传 GitHub，
+#   保证每个 TASK 的代码拉取后可直接运行。
+# - material/taskN/ 子目录为课件截图，仅本地参考，不提交。
+# - *.pkl 模型文件可由 python TASK6/task6_ml_stock_selection.py 重新生成。
+# - TASK1-6 本地运行时会自动生成 __pycache__/，已在上方排除，无需手动管理。

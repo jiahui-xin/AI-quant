@@ -551,6 +551,52 @@ h2 {
     linear-gradient(135deg, #0b302f, #286c5d);
 }
 
+.task5-hero {
+  min-height: 76vh;
+  background:
+    linear-gradient(100deg, rgba(13, 26, 60, .97), rgba(38, 64, 132, .84) 58%, rgba(120, 47, 90, .72)),
+    radial-gradient(circle at 78% 32%, rgba(120, 169, 232, .28), transparent 30%),
+    repeating-linear-gradient(45deg, transparent 0 38px, rgba(255,255,255,.04) 39px 40px),
+    linear-gradient(135deg, #0d1a3c, #2a3f7d);
+}
+
+.task6-hero {
+  min-height: 76vh;
+  background:
+    linear-gradient(100deg, rgba(40, 14, 50, .97), rgba(110, 38, 96, .84) 58%, rgba(178, 58, 72, .72)),
+    radial-gradient(circle at 22% 78%, rgba(232, 165, 120, .26), transparent 30%),
+    repeating-linear-gradient(135deg, transparent 0 32px, rgba(255,255,255,.035) 33px 34px),
+    linear-gradient(135deg, #1a0a26, #6e2660);
+}
+
+.task5-metric-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.task5-figure-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.task5-figure-grid .chart-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.task5-figure-grid img {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+@media (max-width: 760px) {
+  .task5-figure-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .portal-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

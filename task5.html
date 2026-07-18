@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TASK5 · AI 交易引擎与分类机器学习</title>
+  <link rel="stylesheet" href="assets/styles.css?v=8">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <header class="hero task5-hero">
+    <nav class="nav">
+      <div class="brand">AI-quant / TASK5</div>
+      <div class="nav-links">
+        <a href="index.html">首页</a>
+        <a href="task1.html">TASK1</a>
+        <a href="task2.html">TASK2</a>
+        <a href="task3.html">TASK3</a>
+        <a href="task4.html">TASK4</a>
+        <a href="task6.html">TASK6</a>
+        <a href="TASK5/辛家辉TASK5.pdf">PDF</a>
+      </div>
+    </nav>
+    <section class="hero-inner">
+      <p class="eyebrow">Classification ML · AI Trading Engine</p>
+      <h1>AI 交易引擎：分类型机器学习算法与场景应用</h1>
+      <p class="hero-copy">使用 A 股财务指标收益数据集，构建决策树与随机森林分类模型，预测股票后续收益的涨跌方向，并通过混淆矩阵、AUC 与 ROC 曲线评估模型表现。</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#mlLab">进入模型实验室</a>
+        <a class="button secondary" href="TASK5/辛家辉TASK5.pdf">下载作业报告</a>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="section" id="concepts">
+      <div class="section-head">
+        <p class="eyebrow">Algorithm Basics</p>
+        <h2>分类型机器学习算法与评价指标</h2>
+        <p>逻辑回归给出线性概率基线，决策树提供可解释的非线性规则，随机森林通过集成多棵树提升稳健性；混淆矩阵、AUC 与 ROC 曲线共同衡量分类模型的排序能力。</p>
+      </div>
+      <div class="indicator-grid">
+        <article class="indicator-card"><h3>逻辑回归</h3><p>线性组合套 Sigmoid 输出概率，训练快、可解释，但只能学习线性决策边界。</p></article>
+        <article class="indicator-card"><h3>决策树</h3><p>按基尼不纯度递归分裂特征空间，规则透明、能处理非线性，单棵树易过拟合。</p></article>
+        <article class="indicator-card"><h3>随机森林</h3><p>自助采样 + 特征随机构造多棵树，集成投票提升泛化能力，对噪声稳健。</p></article>
+        <article class="indicator-card"><h3>混淆矩阵 / AUC / ROC</h3><p>TP/FP/FN/TN 衡量错配类型；ROC 横轴 FPR、纵轴 TPR；AUC 为曲线下面积，越接近 1 越好。</p></article>
+      </div>
+    </section>
+
+    <section class="section dashboard-section" id="mlLab">
+      <div class="section-head">
+        <p class="eyebrow">Model Evaluation</p>
+        <h2>模型实验室</h2>
+        <p>数据集 <code>model_data_stock.csv</code> 共 20,772 条记录、17 个财务特征；按 8:2 随机划分训练集与测试集，<code>random_state=42</code> 保证可复现。下表为决策树与随机森林在测试集上的评估结果。</p>
+      </div>
+      <div class="metric-grid task5-metric-grid" id="task5MetricGrid"></div>
+      <div class="chart-stack task3-stack">
+        <div class="chart-panel">
+          <div class="panel-title">图1 决策树与随机森林 ROC 曲线对比</div>
+          <div id="rocChart" class="chart tall"></div>
+          <p class="caption">横轴为假阳性率 FPR，纵轴为真正例率 TPR；对角线为随机猜测基准，曲线越靠近左上角越好。</p>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">图2 随机森林 Top-15 特征重要性</div>
+          <div id="importanceChart" class="chart tall"></div>
+          <p class="caption">市值 MV 与盈利成长类指标排名靠前，估值类指标紧随其后。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <p class="eyebrow">Confusion Matrix</p>
+        <h2>测试集混淆矩阵</h2>
+        <p>左图为决策树、右图为随机森林。两个模型在负类（跌）上都能保持较高的 TN，但 TP（正确预测涨）相对较少，整体倾向预测“跌”。</p>
+      </div>
+      <div class="task5-figure-grid">
+        <div class="chart-panel">
+          <div class="panel-title">图3 决策树测试集混淆矩阵</div>
+          <img src="TASK5/figures/figure3_dt_confusion_matrix.png" alt="决策树混淆矩阵">
+          <p class="caption">TP=541 / FP=532 / FN=1137 / TN=1945</p>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">图4 随机森林测试集混淆矩阵</div>
+          <img src="TASK5/figures/figure4_rf_confusion_matrix.png" alt="随机森林混淆矩阵">
+          <p class="caption">TP=481 / FP=372 / FN=1197 / TN=2105</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="comparisonTable"></table>
+      </div>
+    </section>
+
+    <section class="section visual-band">
+      <div class="section-head">
+        <p class="eyebrow">Artifacts</p>
+        <h2>提交文件与可复用成果</h2>
+        <p>TASK5 独立保存报告、Python 源码、4 张图表与 2 个结果 CSV，网页继续复用共享样式与脚本。</p>
+      </div>
+      <div class="portal-grid small-grid">
+        <article class="portal-card">
+          <span class="task-mark">REPORT</span>
+          <h3>辛家辉TASK5.pdf</h3>
+          <p>包含算法原理、评价指标解释、代码实现、ROC 曲线、混淆矩阵、特征重要性与结果解读。</p>
+          <a class="csv-link" href="TASK5/辛家辉TASK5.pdf">下载 PDF</a>
+        </article>
+        <article class="portal-card">
+          <span class="task-mark">CODE & DATA</span>
+          <h3>分类模型源码与结果</h3>
+          <p>完整 Python 脚本可重新生成全部图表、CSV 和报告。</p>
+          <a class="csv-link" href="TASK5/task5_classification_models.py">查看 Python 源码</a>
+          <a class="csv-link secondary-link" href="TASK5/results/model_comparison.csv">下载模型对比</a>
+          <a class="csv-link secondary-link" href="TASK5/results/feature_importance.csv">下载特征重要性</a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>作者：辛家辉</span>
+    <span>模型：决策树 / 随机森林</span>
+    <span>评估：混淆矩阵 / AUC / ROC</span>
+    <strong>本页面仅供课程研究参考，不构成投资建议。</strong>
+  </footer>
+
+  <script src="assets/task5_app.js?v=1"></script>
+  <script src="assets/i18n.js?v=8"></script>
+</body>
+</html>

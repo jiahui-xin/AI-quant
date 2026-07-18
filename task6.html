@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TASK6 · 机器学习选股与季度 Top 30 策略</title>
+  <link rel="stylesheet" href="assets/styles.css?v=9">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <header class="hero task6-hero">
+    <nav class="nav">
+      <div class="brand">AI-quant / TASK6</div>
+      <div class="nav-links">
+        <a href="index.html">首页</a>
+        <a href="task1.html">TASK1</a>
+        <a href="task2.html">TASK2</a>
+        <a href="task3.html">TASK3</a>
+        <a href="task4.html">TASK4</a>
+        <a href="task5.html">TASK5</a>
+        <a href="TASK6/辛家辉TASK6.pdf">PDF</a>
+      </div>
+    </nav>
+    <section class="hero-inner">
+      <p class="eyebrow">ML Stock Selection · Quarterly Top 30</p>
+      <h1>智能决策者：用机器学习定制专属策略</h1>
+      <p class="hero-copy">用 A 股截面财务因子数据训练四种机器学习模型，预测股票下一季度收益，按预测得分每季度挑选 Top 30 股票构建等权和预测加权组合，对比四模型与市场基准的收益、风险、夏普等指标。</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#selectionLab">进入选股实验室</a>
+        <a class="button secondary" href="TASK6/辛家辉TASK6.pdf">下载作业报告</a>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="section" id="concepts">
+      <div class="section-head">
+        <p class="eyebrow">Algorithm Basics</p>
+        <h2>分类型回归模型与选股逻辑</h2>
+        <p>四种机器学习模型各有特点：线性回归给出线性预测基线，逻辑回归输出涨跌概率，决策树捕捉非线性关系，随机森林通过集成提升稳健性；Top 30 选股是典型的"信号→排序→截尾"流程。</p>
+      </div>
+      <div class="indicator-grid">
+        <article class="indicator-card"><h3>线性回归</h3><p>以最小二乘法拟合因子与收益的线性关系，作为基线模型；优点是可解释，缺点是无法捕捉非线性。</p></article>
+        <article class="indicator-card"><h3>逻辑回归</h3><p>将 Next_Ret &gt; 0 转为二分类标签，输出正类概率作为排序分数；C=0.01 增强正则化避免过拟合。</p></article>
+        <article class="indicator-card"><h3>决策树</h3><p>CART 算法递归分裂特征空间，max_depth=8 控制复杂度；可输出特征重要性，能捕捉非线性。</p></article>
+        <article class="indicator-card"><h3>随机森林</h3><p>100 棵决策树通过自助采样和特征随机集成；RandomizedSearchCV 调 n_estimators / max_depth。</p></article>
+        <article class="indicator-card"><h3>EW 等权组合</h3><p>每只股票权重 1/30；简单稳健，无参数；测试期 4 季度共 120 个仓位。</p></article>
+        <article class="indicator-card"><h3>PW 预测加权</h3><p>权重正比于模型预测收益；高确信股票分配更多资金；负预测收益 clip 为 0 避免空头。</p></article>
+      </div>
+    </section>
+
+    <section class="section dashboard-section" id="selectionLab">
+      <div class="section-head">
+        <p class="eyebrow">Model Evaluation</p>
+        <h2>选股实验室</h2>
+        <p>数据集 <code>model_data.csv</code> 共 39,616 条记录、19 个财务因子；按季度划分训练集（2020Q1–2021Q2）与测试集（2021Q3–2022Q2）。下表为四模型在测试集 4 季度的 Top 30 选股回测结果。</p>
+      </div>
+      <div class="metric-grid task5-metric-grid" id="task6MetricGrid"></div>
+      <div class="chart-stack task3-stack">
+        <div class="chart-panel">
+          <div class="panel-title">图1 各模型 Top 30 组合累计收益对比</div>
+          <div id="cumulativeChart" class="chart tall"></div>
+          <p class="caption">8 个模型组合（4 模型 × 2 权重）vs 市场基准，4 个测试季度累计净值走势。</p>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">图2 EW 等权 vs PW 预测收益加权对比</div>
+          <div id="ewpwChart" class="chart tall"></div>
+          <p class="caption">左：累计收益对比；右：夏普比率对比；EW 与 PW 效果接近，EW 略优。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <p class="eyebrow">Feature Importance</p>
+        <h2>特征重要性与回归系数</h2>
+        <p>决策树与随机森林识别出对收益预测最重要的财务因子，线性回归系数反映因子的边际影响方向与强度。</p>
+      </div>
+      <div class="task5-figure-grid">
+        <div class="chart-panel">
+          <div class="panel-title">图3 决策树与随机森林特征重要性</div>
+          <img src="TASK6/figures/figure3_feature_importance.png" alt="特征重要性">
+          <p class="caption">营业利润同比增长率、MV、净利润同比增长率是 Top 3 重要特征</p>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-title">图4 线性回归系数 Top 10 正/负</div>
+          <img src="TASK6/figures/figure4_linear_coefficients.png" alt="线性回归系数">
+          <p class="caption">绿色为正向因子（值越大越涨），红色为负向因子</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="performanceTable"></table>
+      </div>
+    </section>
+
+    <section class="section visual-band">
+      <div class="section-head">
+        <p class="eyebrow">Artifacts</p>
+        <h2>提交文件与可复用成果</h2>
+        <p>TASK6 独立保存报告、Python 源码、4 张图表、4 个训练好的模型 .pkl 与 5+ 个结果 CSV，网页继续复用共享样式与脚本。</p>
+      </div>
+      <div class="portal-grid small-grid">
+        <article class="portal-card">
+          <span class="task-mark">REPORT</span>
+          <h3>辛家辉TASK6.pdf</h3>
+          <p>包含任务说明、数据集、模型原理、Top 30 选股逻辑、回测指标、4 张图表、策略优势与局限。</p>
+          <a class="csv-link" href="TASK6/辛家辉TASK6.pdf">下载 PDF</a>
+        </article>
+        <article class="portal-card">
+          <span class="task-mark">CODE & MODELS</span>
+          <h3>ML 选股源码与训练模型</h3>
+          <p>完整 Python 脚本可重新生成所有指标、图表、CSV 和报告；4 个 .pkl 模型可被复用加载。</p>
+          <a class="csv-link" href="TASK6/task6_ml_stock_selection.py">查看 Python 源码</a>
+          <a class="csv-link secondary-link" href="TASK6/results/performance_metrics.csv">下载绩效汇总</a>
+          <a class="csv-link secondary-link" href="TASK6/results/feature_importance.csv">下载特征重要性</a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>作者：辛家辉</span>
+    <span>模型：LR / Logr / DT / RF</span>
+    <span>选股：季度 Top 30</span>
+    <strong>本页面仅供课程研究参考，不构成投资建议。</strong>
+  </footer>
+
+  <script src="assets/task6_app.js?v=1"></script>
+  <script src="assets/i18n.js?v=9"></script>
+</body>
+</html>
