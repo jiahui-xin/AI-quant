@@ -74,7 +74,7 @@
       <div class="section-head">
         <p class="eyebrow">Feature Importance</p>
         <h2>特征重要性与回归系数</h2>
-        <p>决策树与随机森林识别出对收益预测最重要的财务因子，线性回归系数反映因子的边际影响方向与强度。</p>
+        <p>决策树与随机森林输出特征重要性（基尼下降量），线性回归与逻辑回归的系数反映因子的边际影响方向与强度——四模型共同揭示哪些财务因子对下季度收益有预测力。</p>
       </div>
       <div class="task5-figure-grid">
         <div class="chart-panel">
@@ -83,9 +83,9 @@
           <p class="caption">营业利润同比增长率、MV、净利润同比增长率是 Top 3 重要特征</p>
         </div>
         <div class="chart-panel">
-          <div class="panel-title">图4 线性回归系数 Top 10 正/负</div>
-          <img src="TASK6/figures/figure4_linear_coefficients.png" alt="线性回归系数">
-          <p class="caption">绿色为正向因子（值越大越涨），红色为负向因子</p>
+          <div class="panel-title">图4 线性回归与逻辑回归系数对比</div>
+          <img src="TASK6/figures/figure4_linear_coefficients.png" alt="线性模型系数对比">
+          <p class="caption">左：线性回归 Top 10 正/负；右：逻辑回归 Top 15（按绝对值）；绿色正向、红色负向</p>
         </div>
       </div>
       <div class="table-wrap">
