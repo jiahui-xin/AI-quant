@@ -303,19 +303,40 @@ def plot_feature_importance(models, out):
 
 
 def plot_linear_coefficients(models, out):
-    coefs = pd.Series(models["LinearRegression"].coef_, index=FEATURE_COLS)
-    top_pos = coefs.sort_values(ascending=False).head(10)
-    top_neg = coefs.sort_values().head(10)
-    combined = pd.concat([top_neg, top_pos])
+    """展示线性回归与逻辑回归的系数对比（两者都有 coef_ 属性）。"""
+    lr_coefs = pd.Series(models["LinearRegression"].coef_, index=FEATURE_COLS)
+    logr_coefs = pd.Series(models["LogisticRegression"].coef_[0], index=FEATURE_COLS)
 
-    fig, ax = plt.subplots(figsize=(9, 5))
-    colors_bar = ["#b23a48" if v < 0 else "#2f7d5c" for v in combined.values]
-    ax.barh(range(len(combined)), combined.values, color=colors_bar, edgecolor="#333")
-    ax.set_yticks(range(len(combined)))
-    ax.set_yticklabels(combined.index, fontsize=9)
-    ax.axvline(0, color="#333", lw=0.8)
-    ax.set_xlabel("回归系数"); ax.set_title("图4 线性回归系数 Top 10 正/负", fontsize=13, pad=10)
-    ax.grid(axis="x", alpha=0.25)
+    # 线性回归：取 Top 10 正/负
+    lr_top_pos = lr_coefs.sort_values(ascending=False).head(10)
+    lr_top_neg = lr_coefs.sort_values().head(10)
+    lr_combined = pd.concat([lr_top_neg, lr_top_pos])
+
+    # 逻辑回归：按绝对值排序取 Top 15（系数大小代表对涨跌概率的影响强度）
+    logr_abs = logr_coefs.abs().sort_values(ascending=False).head(15)
+    logr_top = logr_coefs.loc[logr_abs.index]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5.5))
+
+    # 左图：线性回归系数
+    colors_lr = ["#b23a48" if v < 0 else "#2f7d5c" for v in lr_combined.values]
+    ax1.barh(range(len(lr_combined)), lr_combined.values, color=colors_lr, edgecolor="#333")
+    ax1.set_yticks(range(len(lr_combined)))
+    ax1.set_yticklabels(lr_combined.index, fontsize=8)
+    ax1.axvline(0, color="#333", lw=0.8)
+    ax1.set_xlabel("回归系数"); ax1.set_title("线性回归系数 Top 10 正/负", fontsize=12)
+    ax1.grid(axis="x", alpha=0.25)
+
+    # 右图：逻辑回归系数（按绝对值排序）
+    colors_logr = ["#b23a48" if v < 0 else "#2f7d5c" for v in logr_top.values]
+    ax2.barh(range(len(logr_top)), logr_top.values, color=colors_logr, edgecolor="#333")
+    ax2.set_yticks(range(len(logr_top)))
+    ax2.set_yticklabels(logr_top.index, fontsize=8)
+    ax2.axvline(0, color="#333", lw=0.8)
+    ax2.set_xlabel("逻辑回归系数（log-odds）"); ax2.set_title("逻辑回归系数 Top 15（按绝对值）", fontsize=12)
+    ax2.grid(axis="x", alpha=0.25)
+
+    fig.suptitle("图4 线性回归与逻辑回归系数对比", fontsize=13, y=1.02)
     fig.tight_layout()
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
@@ -517,11 +538,13 @@ def build_report(metrics_df, model_eval, n_train, n_test, n_features):
         Paragraph("图3 展示了决策树和随机森林认为最重要的 15 个财务因子。两个模型一致认为"
                   "市值 MV、净利润同比增长率、营业总收入同比增长率等基本面因子对下一季度收益"
                   "有较强的预测力，估值类因子（PB、PE、PS）的重要性相对较低。", body),
-        KeepTogether([Image(str(FIG_DIR / "figure4_linear_coefficients.png"), width=doc.width * 0.78, height=doc.width * 0.45),
-                      Paragraph("图4 线性回归系数 Top 10 正/负", caption)]),
-        Paragraph("图4 展示了线性回归中影响最大的 10 个正向和 10 个负向系数。"
-                  "正向系数最大的因子表示该因子值越大，下一季度收益预期越高；负向系数反之。"
-                  "线性模型的优势在于系数可直接解读为因子的边际影响方向。", body),
+        KeepTogether([Image(str(FIG_DIR / "figure4_linear_coefficients.png"), width=doc.width, height=doc.width * 0.44),
+                      Paragraph("图4 线性回归与逻辑回归系数对比", caption)]),
+        Paragraph("图4 左图展示了线性回归中影响最大的 10 个正向和 10 个负向系数。"
+                  "正向系数表示该因子值越大，下一季度收益预期越高；负向系数反之。"
+                  "右图展示了逻辑回归按系数绝对值排序的 Top 15 特征。逻辑回归系数代表各因子对"
+                  "涨跌概率（log-odds）的边际影响，绝对值越大说明该因子对涨跌方向的判别力越强。"
+                  "两个线性模型的系数方向基本一致，说明因子对收益的方向性影响在不同模型设定下是稳健的。", body),
 
         Paragraph("六、Top 30 选股 vs 基准对比", h1),
         Paragraph(f"从表2 和图1 可以看到，全部 8 个 ML 组合的累计收益均高于市场基准的 {market['累计收益']:.2%}，"
@@ -615,7 +638,7 @@ def main():
         qret_rows.append(row)
     pd.DataFrame(qret_rows).to_csv(RESULT_DIR / "quarterly_returns.csv", index=False, encoding="utf-8-sig")
 
-    # 特征重要性
+    # 特征重要性（决策树 + 随机森林）
     fi_rows = []
     for name in ["DecisionTree", "RandomForest"]:
         imp = models[name].feature_importances_
@@ -623,9 +646,13 @@ def main():
             fi_rows.append({"模型": name, "特征": fname, "重要性": val})
     pd.DataFrame(fi_rows).to_csv(RESULT_DIR / "feature_importance.csv", index=False, encoding="utf-8-sig")
 
-    # 线性回归系数
-    pd.DataFrame({"特征": FEATURE_COLS, "系数": models["LinearRegression"].coef_}).to_csv(
-        RESULT_DIR / "linear_coefficients.csv", index=False, encoding="utf-8-sig")
+    # 线性模型系数（线性回归 + 逻辑回归）
+    coef_rows = []
+    for fname, val in zip(FEATURE_COLS, models["LinearRegression"].coef_):
+        coef_rows.append({"模型": "LinearRegression", "特征": fname, "系数": val})
+    for fname, val in zip(FEATURE_COLS, models["LogisticRegression"].coef_[0]):
+        coef_rows.append({"模型": "LogisticRegression", "特征": fname, "系数": val})
+    pd.DataFrame(coef_rows).to_csv(RESULT_DIR / "linear_coefficients.csv", index=False, encoding="utf-8-sig")
 
     print("L3: 生成图表...")
     plot_cumulative_returns(quarterly, FIG_DIR / "figure1_cumulative_returns.png")
